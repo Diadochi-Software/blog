@@ -2,12 +2,12 @@ package tech.diadochi.server
 
 import cats.Monad
 import cats.effect.*
+import cats.effect.syntax.resource.*
 import org.http4s.*
 import org.http4s.dsl.*
 import org.http4s.dsl.impl.*
 import org.http4s.ember.server.*
 import org.http4s.server.{Router, Server}
-import cats.effect.syntax.resource._
 import pureconfig.ConfigSource
 import pureconfig.error.ConfigReaderException
 import tech.diadochi.server.config.EmberConfig
@@ -21,7 +21,7 @@ object HttpServer {
       .default[IO]
       .withHost(config.host)
       .withPort(config.port)
-      .withHttpApp(HealthRoutes[IO].routes.orNotFound)
+      .withHttpApp(HttpApi[IO].endpoints.orNotFound)
       .build
 
   def start: Resource[IO, Server] = for {

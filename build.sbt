@@ -1,4 +1,6 @@
-ThisBuild / version := "0.1.0-SNAPSHOT"
+ThisBuild / version      := "0.1.0-SNAPSHOT"
+ThisBuild / scalaVersion := scala3Version
+ThisBuild / organization := "diadochi"
 
 lazy val diadochi      = "tech.diadochi"
 lazy val scala3Version = "3.2.1"
@@ -20,8 +22,6 @@ lazy val javaMailVersion            = "1.6.2"
 lazy val root = (project in file("."))
   .settings(
     name         := "blog",
-    scalaVersion := scala3Version,
-    organization := diadochi,
     libraryDependencies ++= Seq(
       "org.typelevel" %% "cats-effect" % catsEffectVersion
 //      "org.http4s"            %% "http4s-dsl"          % http4sVersion,
@@ -51,18 +51,16 @@ lazy val root = (project in file("."))
 
 lazy val server = (project in file("server"))
   .settings(
-    name         := "server",
-    scalaVersion := scala3Version,
-    organization := diadochi,
+    name := "server",
     libraryDependencies ++= Seq(
       "org.typelevel"         %% "cats-effect"         % catsEffectVersion,
       "org.http4s"            %% "http4s-dsl"          % http4sVersion,
       "org.http4s"            %% "http4s-ember-server" % http4sVersion,
       "org.http4s"            %% "http4s-circe"        % http4sVersion,
       "com.github.pureconfig" %% "pureconfig-core"     % pureConfigVersion,
-      "org.slf4j"              % "slf4j-simple"        % slf4jVersion
-//      "io.circe"              %% "circe-generic"       % circeVersion,
-//      "io.circe"              %% "circe-fs2"           % circeVersion,
+      "org.slf4j"              % "slf4j-simple"        % slf4jVersion,
+      "io.circe"              %% "circe-generic"       % circeVersion,
+      "io.circe"              %% "circe-fs2"           % circeVersion,
 //      "org.tpolecat"          %% "doobie-core"         % doobieVersion,
 //      "org.tpolecat"          %% "doobie-hikari"       % doobieVersion,
 //      "org.tpolecat"          %% "doobie-postgres"     % doobieVersion,
@@ -78,5 +76,6 @@ lazy val server = (project in file("server"))
 //      "ch.qos.logback"     % "logback-classic"               % logbackVersion             % Test
     )
   )
+  .dependsOn(core)
 
 lazy val core = (project in file("core")).settings(name := "core")
