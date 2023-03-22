@@ -21,9 +21,9 @@ lazy val root = (project in file("."))
   .settings(
     name         := "blog",
     scalaVersion := scala3Version,
-    organization := diadochi
-//    libraryDependencies ++= Seq(
-//      "org.typelevel"         %% "cats-effect"         % catsEffectVersion,
+    organization := diadochi,
+    libraryDependencies ++= Seq(
+      "org.typelevel" %% "cats-effect" % catsEffectVersion
 //      "org.http4s"            %% "http4s-dsl"          % http4sVersion,
 //      "org.http4s"            %% "http4s-ember-server" % http4sVersion,
 //      "org.http4s"            %% "http4s-circe"        % http4sVersion,
@@ -44,12 +44,14 @@ lazy val root = (project in file("."))
 //      "org.testcontainers" % "testcontainers"                % testContainerVersion       % Test,
 //      "org.testcontainers" % "postgresql"                    % testContainerVersion       % Test,
 //      "ch.qos.logback"     % "logback-classic"               % logbackVersion             % Test
-//    )
+    )
   )
-  .aggregate(server)
+  .dependsOn(server)
+  .aggregate(server, core)
 
 lazy val server = (project in file("server"))
   .settings(
+    name         := "server",
     scalaVersion := scala3Version,
     organization := diadochi,
     libraryDependencies ++= Seq(
@@ -57,22 +59,24 @@ lazy val server = (project in file("server"))
       "org.http4s"            %% "http4s-dsl"          % http4sVersion,
       "org.http4s"            %% "http4s-ember-server" % http4sVersion,
       "org.http4s"            %% "http4s-circe"        % http4sVersion,
-      "io.circe"              %% "circe-generic"       % circeVersion,
-      "io.circe"              %% "circe-fs2"           % circeVersion,
-      "org.tpolecat"          %% "doobie-core"         % doobieVersion,
-      "org.tpolecat"          %% "doobie-hikari"       % doobieVersion,
-      "org.tpolecat"          %% "doobie-postgres"     % doobieVersion,
-      "org.tpolecat"          %% "doobie-scalatest"    % doobieVersion    % Test,
       "com.github.pureconfig" %% "pureconfig-core"     % pureConfigVersion,
-      "org.typelevel"         %% "log4cats-slf4j"      % log4catsVersion,
-      "org.slf4j"              % "slf4j-simple"        % slf4jVersion,
-      "io.github.jmcardon"    %% "tsec-http4s"         % tsecVersion,
-      "com.sun.mail"           % "javax.mail"          % javaMailVersion,
-      "org.typelevel"         %% "log4cats-noop"       % log4catsVersion  % Test,
-      "org.scalatest"         %% "scalatest"           % scalaTestVersion % Test,
-      "org.typelevel"     %% "cats-effect-testing-scalatest" % scalaTestCatsEffectVersion % Test,
-      "org.testcontainers" % "testcontainers"                % testContainerVersion       % Test,
-      "org.testcontainers" % "postgresql"                    % testContainerVersion       % Test,
-      "ch.qos.logback"     % "logback-classic"               % logbackVersion             % Test
+      "org.slf4j"              % "slf4j-simple"        % slf4jVersion
+//      "io.circe"              %% "circe-generic"       % circeVersion,
+//      "io.circe"              %% "circe-fs2"           % circeVersion,
+//      "org.tpolecat"          %% "doobie-core"         % doobieVersion,
+//      "org.tpolecat"          %% "doobie-hikari"       % doobieVersion,
+//      "org.tpolecat"          %% "doobie-postgres"     % doobieVersion,
+//      "org.tpolecat"          %% "doobie-scalatest"    % doobieVersion    % Test,
+//      "org.typelevel"         %% "log4cats-slf4j"      % log4catsVersion,
+//      "io.github.jmcardon"    %% "tsec-http4s"         % tsecVersion,
+//      "com.sun.mail"           % "javax.mail"          % javaMailVersion,
+//      "org.typelevel"         %% "log4cats-noop"       % log4catsVersion  % Test,
+//      "org.scalatest"         %% "scalatest"           % scalaTestVersion % Test,
+//      "org.typelevel"     %% "cats-effect-testing-scalatest" % scalaTestCatsEffectVersion % Test,
+//      "org.testcontainers" % "testcontainers"                % testContainerVersion       % Test,
+//      "org.testcontainers" % "postgresql"                    % testContainerVersion       % Test,
+//      "ch.qos.logback"     % "logback-classic"               % logbackVersion             % Test
     )
   )
+
+lazy val core = (project in file("core")).settings(name := "core")
