@@ -1,4 +1,4 @@
-package tech.diadochi.blog
+package tech.diadochi.server
 
 object Main {
 
