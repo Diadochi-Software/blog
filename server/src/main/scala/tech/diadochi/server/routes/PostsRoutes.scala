@@ -8,13 +8,15 @@ import org.http4s.circe.CirceEntityCodec.*
 import org.http4s.dsl.Http4sDsl
 import org.http4s.server.Router
 import org.http4s.{EntityDecoder, HttpRoutes}
+import org.typelevel.log4cats.Logger
 import tech.diadochi.core.{Post, PostInfo}
+import tech.diadochi.server.logging.syntax.*
 import tech.diadochi.server.responses.FailureResponse
 
 import java.util.UUID
 import scala.collection.mutable
 
-class PostsRoutes[F[_]: Concurrent] private extends Http4sDsl[F] {
+class PostsRoutes[F[_]: Concurrent: Logger] private extends Http4sDsl[F] {
 
   private val database = new mutable.HashMap[UUID, Post]()
 
@@ -41,8 +43,13 @@ class PostsRoutes[F[_]: Concurrent] private extends Http4sDsl[F] {
   private val createPostRoute: HttpRoutes[F] = HttpRoutes.of[F] {
     case req @ POST -> Root / "create" =>
       for {
-        postInfo <- req.as[PostInfo]
+        _        <- Logger[F].info("Creating post")
+        postInfo <- req.as[PostInfo].logError(_.getMessage)
+        _        <- Logger[F].info(s"Post info: $postInfo")
         post     <- createPost(postInfo)
+        _        <- Logger[F].info(s"Created post: $post")
+        _        <- database.put(post.id, post).pure[F]
+        _        <- Logger[F].info(s"Added post to database: ${post.id}")
         resp     <- Created(post.id)
       } yield resp
   }
@@ -77,5 +84,5 @@ class PostsRoutes[F[_]: Concurrent] private extends Http4sDsl[F] {
 }
 
 object PostsRoutes {
-  def apply[F[_]: Concurrent]: PostsRoutes[F] = new PostsRoutes[F]
+  def apply[F[_]: Concurrent: Logger]: PostsRoutes[F] = new PostsRoutes[F]
 }
