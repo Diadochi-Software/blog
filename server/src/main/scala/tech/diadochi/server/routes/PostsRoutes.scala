@@ -10,79 +10,82 @@ import org.http4s.server.Router
 import org.http4s.{EntityDecoder, HttpRoutes}
 import org.typelevel.log4cats.Logger
 import tech.diadochi.core.{Post, PostInfo}
+import tech.diadochi.repo.algebra.Posts
 import tech.diadochi.server.logging.syntax.*
 import tech.diadochi.server.responses.FailureResponse
 
+import java.time.LocalDateTime
 import java.util.UUID
 import scala.collection.mutable
 
-class PostsRoutes[F[_]: Concurrent: Logger] private extends Http4sDsl[F] {
-
-  private val database = new mutable.HashMap[UUID, Post]()
+class PostsRoutes[F[_]: Concurrent: Logger] private (posts: Posts[F]) extends Http4sDsl[F] {
 
   private val allPostsRoute: HttpRoutes[F] = HttpRoutes.of[F] { case POST -> Root =>
-    Ok(database.values)
+    for {
+      posts    <- posts.all
+      response <- Ok(posts)
+    } yield response
   }
 
   private val findPostRoute: HttpRoutes[F] = HttpRoutes.of[F] { case GET -> Root / UUIDVar(id) =>
-    database.get(id) match
-      case Some(post) => Ok(post)
-      case None       => NotFound(FailureResponse(s"Post with id $id not found"))
+    for {
+      maybePost <- posts.find(id)
+      response <- maybePost match {
+        case Some(post) => Ok(post)
+        case None       => NotFound(FailureResponse(s"Post with id $id not found"))
+      }
+    } yield response
   }
-
-  private def createPost(postInfo: PostInfo): F[Post] =
-    Post(
-      id = UUID.randomUUID(),
-      date = System.currentTimeMillis(),
-      authorEmail = "john@doe.com",
-      language = "English",
-      info = postInfo,
-      active = true
-    ).pure[F]
 
   private val createPostRoute: HttpRoutes[F] = HttpRoutes.of[F] {
     case req @ POST -> Root / "create" =>
-      for {
-        _        <- Logger[F].info("Creating post")
-        postInfo <- req.as[PostInfo].logError(_.getMessage)
-        _        <- Logger[F].info(s"Post info: $postInfo")
-        post     <- createPost(postInfo)
-        _        <- Logger[F].info(s"Created post: $post")
-        _        <- database.put(post.id, post).pure[F]
-        _        <- Logger[F].info(s"Added post to database: ${post.id}")
-        resp     <- Created(post.id)
-      } yield resp
+      (for {
+        postInfo <- req.as[PostInfo]
+        post     <- posts.create("john@doe.com", postInfo)
+        response <- Created(post)
+      } yield response).logError(_ => "Failed to create post")
   }
 
   private val updatePostRoute: HttpRoutes[F] = HttpRoutes.of[F] {
     case req @ PUT -> Root / UUIDVar(id) =>
-      database get id match
-        case Some(post) =>
-          for {
-            postInfo <- req.as[PostInfo]
-            _        <- database.put(id, post.copy(info = postInfo)).pure[F]
-            res      <- Ok()
-          } yield res
-        case None => NotFound(FailureResponse(s"Post with id $id not found"))
+      for {
+        post <- req.as[Post]
+        post <- posts.update(post)
+        response <- post match {
+          case Some(p) => Ok(p)
+          case None    => NotFound(FailureResponse(s"Post with id $id not found"))
+        }
+      } yield response
+  }
+
+  private val updatePostInfoRoute: HttpRoutes[F] = HttpRoutes.of[F] {
+    case req @ PUT -> Root / UUIDVar(id) / "info" =>
+      for {
+        postInfo <- req.as[PostInfo]
+        post     <- posts.updateInfo(id, postInfo)
+        response <- post match {
+          case Some(p) => Ok(p)
+          case None    => NotFound(FailureResponse(s"Post with id $id not found"))
+        }
+      } yield response
   }
 
   private val deletePostRoute: HttpRoutes[F] = HttpRoutes.of[F] {
     case DELETE -> Root / UUIDVar(id) =>
-      database get id match
-        case Some(_) =>
-          for {
-            _   <- database.remove(id).pure[F]
-            res <- Ok()
-          } yield res
-        case None => NotFound(FailureResponse(s"Post with id $id not found"))
+      for {
+        post <- posts.delete(id)
+        response <-
+          if (post == 0) NotFound(FailureResponse(s"Post with id $id not found"))
+          else Ok()
+      } yield response
   }
 
   val routes: HttpRoutes[F] = Router(
-    "/posts" -> (allPostsRoute <+> findPostRoute <+> createPostRoute <+> updatePostRoute <+> deletePostRoute)
+    "/posts" -> (allPostsRoute <+> findPostRoute <+> createPostRoute <+> updatePostRoute <+> updatePostInfoRoute <+> deletePostRoute)
   )
 
 }
 
 object PostsRoutes {
-  def apply[F[_]: Concurrent: Logger]: PostsRoutes[F] = new PostsRoutes[F]
+  def apply[F[_]: Concurrent: Logger](posts: Posts[F]): PostsRoutes[F] = new PostsRoutes[F](posts)
 }

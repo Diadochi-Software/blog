@@ -19,11 +19,16 @@ lazy val logbackVersion             = "1.4.0"
 lazy val slf4jVersion               = "2.0.0"
 lazy val javaMailVersion            = "1.6.2"
 
+val commonSettings = Seq(
+  "org.typelevel" %% "cats-effect"    % catsEffectVersion,
+  "org.typelevel" %% "log4cats-slf4j" % log4catsVersion
+)
+
 lazy val root = (project in file("."))
   .settings(
-    name         := "blog",
-    libraryDependencies ++= Seq(
-      "org.typelevel" %% "cats-effect" % catsEffectVersion
+    name := "blog",
+    libraryDependencies ++= commonSettings,
+//      Seq(
 //      "org.http4s"            %% "http4s-dsl"          % http4sVersion,
 //      "org.http4s"            %% "http4s-ember-server" % http4sVersion,
 //      "org.http4s"            %% "http4s-circe"        % http4sVersion,
@@ -44,28 +49,23 @@ lazy val root = (project in file("."))
 //      "org.testcontainers" % "testcontainers"                % testContainerVersion       % Test,
 //      "org.testcontainers" % "postgresql"                    % testContainerVersion       % Test,
 //      "ch.qos.logback"     % "logback-classic"               % logbackVersion             % Test
-    )
+//    )
+    Compile / mainClass := Some("tech.diadochi.blog.Main")
   )
   .dependsOn(server)
-  .aggregate(server, core)
+  .aggregate(server, repos, core)
 
 lazy val server = (project in file("server"))
   .settings(
     name := "server",
-    libraryDependencies ++= Seq(
-      "org.typelevel"         %% "cats-effect"         % catsEffectVersion,
+    libraryDependencies ++= commonSettings ++ Seq(
       "org.http4s"            %% "http4s-dsl"          % http4sVersion,
       "org.http4s"            %% "http4s-ember-server" % http4sVersion,
       "org.http4s"            %% "http4s-circe"        % http4sVersion,
       "com.github.pureconfig" %% "pureconfig-core"     % pureConfigVersion,
       "org.slf4j"              % "slf4j-simple"        % slf4jVersion,
       "io.circe"              %% "circe-generic"       % circeVersion,
-      "io.circe"              %% "circe-fs2"           % circeVersion,
-//      "org.tpolecat"          %% "doobie-core"         % doobieVersion,
-//      "org.tpolecat"          %% "doobie-hikari"       % doobieVersion,
-//      "org.tpolecat"          %% "doobie-postgres"     % doobieVersion,
-//      "org.tpolecat"          %% "doobie-scalatest"    % doobieVersion    % Test,
-//      "org.typelevel"         %% "log4cats-slf4j"      % log4catsVersion,
+      "io.circe"              %% "circe-fs2"           % circeVersion
 //      "io.github.jmcardon"    %% "tsec-http4s"         % tsecVersion,
 //      "com.sun.mail"           % "javax.mail"          % javaMailVersion,
 //      "org.typelevel"         %% "log4cats-noop"       % log4catsVersion  % Test,
@@ -74,6 +74,18 @@ lazy val server = (project in file("server"))
 //      "org.testcontainers" % "testcontainers"                % testContainerVersion       % Test,
 //      "org.testcontainers" % "postgresql"                    % testContainerVersion       % Test,
 //      "ch.qos.logback"     % "logback-classic"               % logbackVersion             % Test
+    )
+  )
+  .dependsOn(repos, core)
+
+lazy val repos = (project in file("repos"))
+  .settings(
+    name := "repos",
+    libraryDependencies ++= commonSettings ++ Seq(
+      "org.tpolecat" %% "doobie-core"      % doobieVersion,
+      "org.tpolecat" %% "doobie-hikari"    % doobieVersion,
+      "org.tpolecat" %% "doobie-postgres"  % doobieVersion,
+      "org.tpolecat" %% "doobie-scalatest" % doobieVersion % Test
     )
   )
   .dependsOn(core)

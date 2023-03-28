@@ -1,16 +1,15 @@
 package tech.diadochi.core
 
+import java.util.UUID
+import scala.annotation.unused
+
 case class PostInfo(
-    author: String,
+    postId: Option[UUID],
+    language: String,
     title: String,
     description: String,
-    content: String,
-    tags: List[String],
-    maybeImage: Option[String] = None
-)
-
-object PostInfo {
-
-  def empty: PostInfo = PostInfo("", "", "", "", List.empty)
-
+    content: String
+) {
+  @unused
+  def isNew: Boolean = postId.isEmpty
 }

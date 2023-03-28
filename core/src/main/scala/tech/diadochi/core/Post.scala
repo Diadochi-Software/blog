@@ -1,12 +1,14 @@
 package tech.diadochi.core
 
+import java.time.LocalDateTime
 import java.util.UUID
 
 case class Post(
     id: UUID,
-    date: Long,
     authorEmail: String,
-    language: String,
-    info: PostInfo,
-    active: Boolean = false
+    originalLanguage: String,
+    createdAt: LocalDateTime,
+    tags: List[String] = List.empty,
+    active: Boolean = false,
+    maybeImage: Option[String] = None
 )
