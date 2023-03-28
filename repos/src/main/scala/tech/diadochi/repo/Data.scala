@@ -7,26 +7,29 @@ import doobie.ExecutionContexts
 import doobie.hikari.HikariTransactor
 import tech.diadochi.core.Post
 import tech.diadochi.repo.algebra.Posts
+import tech.diadochi.repo.config.PostgresConfig
 import tech.diadochi.repo.live.LivePosts
 
 final case class Data[F[_]] private (posts: Posts[F])
 
 object Data {
 
-  private def postgresResource[F[_]: Async]: Resource[F, HikariTransactor[F]] =
+  private def postgresResource[F[_]: Async](
+      config: PostgresConfig
+  ): Resource[F, HikariTransactor[F]] =
     for {
-      context <- ExecutionContexts.fixedThreadPool[F](32)
+      context <- ExecutionContexts.fixedThreadPool[F](config.numberOfThreads)
       transactor <- HikariTransactor.newHikariTransactor[F](
         "org.postgresql.Driver",
-        "jdbc:postgresql:blog", // TODO: Move to config
-        "docker",
-        "docker",
+        config.url,
+        config.user,
+        config.password,
         context
       )
     } yield transactor
 
-  def apply[F[_]: Async]: Resource[F, Data[F]] =
-    postgresResource[F].evalMap { transactor =>
+  def apply[F[_]: Async](config: PostgresConfig): Resource[F, Data[F]] =
+    postgresResource[F](config).evalMap { transactor =>
       for {
         posts <- LivePosts[F](transactor)
       } yield new Data[F](posts)

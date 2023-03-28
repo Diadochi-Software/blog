@@ -1,4 +1,4 @@
-package tech.diadochi.server.config
+package tech.diadochi.blog.config
 
 import cats.MonadThrow
 import cats.syntax.all.*

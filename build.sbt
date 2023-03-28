@@ -19,15 +19,16 @@ lazy val logbackVersion             = "1.4.0"
 lazy val slf4jVersion               = "2.0.0"
 lazy val javaMailVersion            = "1.6.2"
 
-val commonSettings = Seq(
-  "org.typelevel" %% "cats-effect"    % catsEffectVersion,
-  "org.typelevel" %% "log4cats-slf4j" % log4catsVersion
+val commonDependencies = Seq(
+  "org.typelevel"         %% "cats-effect"     % catsEffectVersion,
+  "org.typelevel"         %% "log4cats-slf4j"  % log4catsVersion,
+  "com.github.pureconfig" %% "pureconfig-core" % pureConfigVersion
 )
 
 lazy val root = (project in file("."))
   .settings(
     name := "blog",
-    libraryDependencies ++= commonSettings,
+    libraryDependencies ++= commonDependencies,
 //      Seq(
 //      "org.http4s"            %% "http4s-dsl"          % http4sVersion,
 //      "org.http4s"            %% "http4s-ember-server" % http4sVersion,
@@ -58,14 +59,13 @@ lazy val root = (project in file("."))
 lazy val server = (project in file("server"))
   .settings(
     name := "server",
-    libraryDependencies ++= commonSettings ++ Seq(
-      "org.http4s"            %% "http4s-dsl"          % http4sVersion,
-      "org.http4s"            %% "http4s-ember-server" % http4sVersion,
-      "org.http4s"            %% "http4s-circe"        % http4sVersion,
-      "com.github.pureconfig" %% "pureconfig-core"     % pureConfigVersion,
-      "org.slf4j"              % "slf4j-simple"        % slf4jVersion,
-      "io.circe"              %% "circe-generic"       % circeVersion,
-      "io.circe"              %% "circe-fs2"           % circeVersion
+    libraryDependencies ++= commonDependencies ++ Seq(
+      "org.http4s" %% "http4s-dsl"          % http4sVersion,
+      "org.http4s" %% "http4s-ember-server" % http4sVersion,
+      "org.http4s" %% "http4s-circe"        % http4sVersion,
+      "org.slf4j"   % "slf4j-simple"        % slf4jVersion,
+      "io.circe"   %% "circe-generic"       % circeVersion,
+      "io.circe"   %% "circe-fs2"           % circeVersion
 //      "io.github.jmcardon"    %% "tsec-http4s"         % tsecVersion,
 //      "com.sun.mail"           % "javax.mail"          % javaMailVersion,
 //      "org.typelevel"         %% "log4cats-noop"       % log4catsVersion  % Test,
@@ -81,7 +81,7 @@ lazy val server = (project in file("server"))
 lazy val repos = (project in file("repos"))
   .settings(
     name := "repos",
-    libraryDependencies ++= commonSettings ++ Seq(
+    libraryDependencies ++= commonDependencies ++ Seq(
       "org.tpolecat" %% "doobie-core"      % doobieVersion,
       "org.tpolecat" %% "doobie-hikari"    % doobieVersion,
       "org.tpolecat" %% "doobie-postgres"  % doobieVersion,
