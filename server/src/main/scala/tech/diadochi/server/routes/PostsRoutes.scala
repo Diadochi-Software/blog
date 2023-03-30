@@ -76,7 +76,7 @@ class PostsRoutes[F[_]: Concurrent: Logger] private (posts: Posts[F]) extends Ht
         post <- posts.delete(id)
         response <-
           if (post == 0) NotFound(FailureResponse(s"Post with id $id not found"))
-          else Ok(post)
+          else NoContent()
       } yield response
   }
 
