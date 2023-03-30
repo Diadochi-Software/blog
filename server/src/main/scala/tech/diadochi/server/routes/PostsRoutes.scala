@@ -9,7 +9,7 @@ import org.http4s.dsl.Http4sDsl
 import org.http4s.server.Router
 import org.http4s.{EntityDecoder, HttpRoutes}
 import org.typelevel.log4cats.Logger
-import tech.diadochi.core.{Post, PostInfo}
+import tech.diadochi.core.{Post, PostContent}
 import tech.diadochi.repo.algebra.Posts
 import tech.diadochi.server.logging.syntax.*
 import tech.diadochi.server.responses.FailureResponse
@@ -40,7 +40,7 @@ class PostsRoutes[F[_]: Concurrent: Logger] private (posts: Posts[F]) extends Ht
   private val createPostRoute: HttpRoutes[F] = HttpRoutes.of[F] {
     case req @ POST -> Root / "create" =>
       (for {
-        postInfo <- req.as[PostInfo]
+        postInfo <- req.as[PostContent]
         post     <- posts.create("john@doe.com", postInfo)
         response <- Created(post)
       } yield response).logError(_ => "Failed to create post")
@@ -58,17 +58,17 @@ class PostsRoutes[F[_]: Concurrent: Logger] private (posts: Posts[F]) extends Ht
       } yield response
   }
 
-  private val updatePostInfoRoute: HttpRoutes[F] = HttpRoutes.of[F] {
-    case req @ PUT -> Root / UUIDVar(id) / "info" =>
-      for {
-        postInfo <- req.as[PostInfo]
-        post     <- posts.updateInfo(id, postInfo)
-        response <- post match {
-          case Some(p) => Ok(p)
-          case None    => NotFound(FailureResponse(s"Post with id $id not found"))
-        }
-      } yield response
-  }
+//  private val updatePostInfoRoute: HttpRoutes[F] = HttpRoutes.of[F] {
+//    case req @ PUT -> Root / UUIDVar(id) / "info" =>
+//      for {
+//        postInfo <- req.as[PostContent]
+//        post     <- posts.updateInfo(id, postInfo)
+//        response <- post match {
+//          case Some(p) => Ok(p)
+//          case None    => NotFound(FailureResponse(s"Post with id $id not found"))
+//        }
+//      } yield response
+//  }
 
   private val deletePostRoute: HttpRoutes[F] = HttpRoutes.of[F] {
     case DELETE -> Root / UUIDVar(id) =>
@@ -76,12 +76,12 @@ class PostsRoutes[F[_]: Concurrent: Logger] private (posts: Posts[F]) extends Ht
         post <- posts.delete(id)
         response <-
           if (post == 0) NotFound(FailureResponse(s"Post with id $id not found"))
-          else Ok()
+          else Ok(post)
       } yield response
   }
 
   val routes: HttpRoutes[F] = Router(
-    "/posts" -> (allPostsRoute <+> findPostRoute <+> createPostRoute <+> updatePostRoute <+> updatePostInfoRoute <+> deletePostRoute)
+    "/posts" -> (allPostsRoute <+> findPostRoute <+> createPostRoute <+> updatePostRoute <+> deletePostRoute)
   )
 
 }

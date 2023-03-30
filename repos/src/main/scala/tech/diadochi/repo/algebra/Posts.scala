@@ -1,16 +1,47 @@
 package tech.diadochi.repo.algebra
 
-import tech.diadochi.core.{Post, PostInfo}
+import cats.Monad
+import cats.syntax.all.*
+import tech.diadochi.core.{Post, PostContent}
 
 import java.util.UUID
 
-trait Posts[F[_]] {
+trait Posts[F[_]: Monad] {
 
-  def create(ownerEmail: String, postInfo: PostInfo): F[UUID]
+  protected def postsInfo: PostContents[F]
+
+  protected def insertPost(post: Post): F[UUID]
+
+  def create(authorEmail: String, postInfo: PostContent): F[UUID] =
+    for {
+      post   <- Post[F](authorEmail, postInfo)
+      postId <- insertPost(post)
+      _      <- postsInfo.create(postInfo.copy(postId = Some(postId)))
+    } yield postId
+
   def all: F[List[Post]]
   def find(id: UUID): F[Option[Post]]
-  def update(postInfo: Post): F[Option[Post]]
-  def updateInfo(id: UUID, postInfo: PostInfo): F[Option[Post]]
-  def delete(id: UUID): F[Int]
+
+  protected def updatePost(post: Post): F[Int]
+
+  def update(post: Post): F[Option[Post]] =
+    for {
+      updatedPosts <- updatePost(post)
+      maybePost <- updatedPosts match {
+        case 0 => None.pure[F]
+        case _ => find(post.id)
+      }
+    } yield maybePost
+
+  protected def deletePost(id: UUID): F[Int]
+
+  def delete(id: UUID): F[Int] =
+    for {
+      contents <- postsInfo.all(id)
+      deletedInfos <- contents.traverse { postInfo =>
+        postsInfo.delete(postInfo.postId.get, postInfo.language)
+      }
+      deletedPost <- deletePost(id)
+    } yield deletedInfos.sum + deletedPost
 
 }

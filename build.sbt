@@ -20,9 +20,11 @@ lazy val slf4jVersion               = "2.0.0"
 lazy val javaMailVersion            = "1.6.2"
 
 val commonDependencies = Seq(
-  "org.typelevel"         %% "cats-effect"     % catsEffectVersion,
-  "org.typelevel"         %% "log4cats-slf4j"  % log4catsVersion,
-  "com.github.pureconfig" %% "pureconfig-core" % pureConfigVersion
+  "org.typelevel"         %% "cats-effect"                   % catsEffectVersion,
+  "org.typelevel"         %% "log4cats-slf4j"                % log4catsVersion,
+  "com.github.pureconfig" %% "pureconfig-core"               % pureConfigVersion,
+  "org.typelevel"         %% "cats-effect-testing-scalatest" % scalaTestCatsEffectVersion % Test,
+  "org.scalatest"         %% "scalatest"                     % scalaTestVersion           % Test
 )
 
 lazy val root = (project in file("."))
@@ -45,10 +47,6 @@ lazy val root = (project in file("."))
 //      "io.github.jmcardon"    %% "tsec-http4s"         % tsecVersion,
 //      "com.sun.mail"           % "javax.mail"          % javaMailVersion,
 //      "org.typelevel"         %% "log4cats-noop"       % log4catsVersion  % Test,
-//      "org.scalatest"         %% "scalatest"           % scalaTestVersion % Test,
-//      "org.typelevel"     %% "cats-effect-testing-scalatest" % scalaTestCatsEffectVersion % Test,
-//      "org.testcontainers" % "testcontainers"                % testContainerVersion       % Test,
-//      "org.testcontainers" % "postgresql"                    % testContainerVersion       % Test,
 //      "ch.qos.logback"     % "logback-classic"               % logbackVersion             % Test
 //    )
     Compile / mainClass := Some("tech.diadochi.blog.Main")
@@ -82,12 +80,15 @@ lazy val repos = (project in file("repos"))
   .settings(
     name := "repos",
     libraryDependencies ++= commonDependencies ++ Seq(
-      "org.tpolecat" %% "doobie-core"      % doobieVersion,
-      "org.tpolecat" %% "doobie-hikari"    % doobieVersion,
-      "org.tpolecat" %% "doobie-postgres"  % doobieVersion,
-      "org.tpolecat" %% "doobie-scalatest" % doobieVersion % Test
+      "org.tpolecat"      %% "doobie-core"      % doobieVersion,
+      "org.tpolecat"      %% "doobie-hikari"    % doobieVersion,
+      "org.tpolecat"      %% "doobie-postgres"  % doobieVersion,
+      "org.tpolecat"      %% "doobie-scalatest" % doobieVersion        % Test,
+      "org.testcontainers" % "testcontainers"   % testContainerVersion % Test,
+      "org.testcontainers" % "postgresql"       % testContainerVersion % Test
     )
   )
   .dependsOn(core)
 
-lazy val core = (project in file("core")).settings(name := "core")
+lazy val core =
+  (project in file("core")).settings(name := "core", libraryDependencies ++= commonDependencies)
