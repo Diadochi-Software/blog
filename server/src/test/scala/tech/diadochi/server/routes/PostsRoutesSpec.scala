@@ -79,7 +79,7 @@ class PostsRoutesSpec
 
   }
 
-  val postRoutes = PostsRoutes[IO](posts).routes
+  private val postRoutes: HttpRoutes[IO] = PostsRoutes[IO](posts).routes
 
   "PostsRoutes" - {
     "should return a post with a given id" in {
@@ -146,9 +146,7 @@ class PostsRoutesSpec
             uri"/posts/00000000-0000-0000-0000-000000000001"
           )
         )
-      } yield {
-        response.status shouldBe NoContent
-      }
+      } yield response.status shouldBe NoContent
     }
     "should only delete a post that exists" in {
       for {
@@ -158,9 +156,7 @@ class PostsRoutesSpec
             uri"/posts/00000000-0000-0000-0000-000000000002"
           )
         )
-      } yield {
-        response.status shouldBe NotFound
-      }
+      } yield response.status shouldBe NotFound
     }
     "should return 404 if a post is not found" in {
       for {

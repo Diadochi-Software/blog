@@ -43,7 +43,7 @@ class PostsRoutes[F[_]: Concurrent: Logger] private (posts: Posts[F]) extends Ht
         postInfo <- req.as[PostContent]
         post     <- posts.create("john@doe.com", postInfo)
         response <- Created(post)
-      } yield response).logError(_ => "Failed to create post")
+      } yield response).logError(_.getMessage)
   }
 
   private val updatePostRoute: HttpRoutes[F] = HttpRoutes.of[F] {
@@ -57,18 +57,6 @@ class PostsRoutes[F[_]: Concurrent: Logger] private (posts: Posts[F]) extends Ht
         }
       } yield response
   }
-
-//  private val updatePostInfoRoute: HttpRoutes[F] = HttpRoutes.of[F] {
-//    case req @ PUT -> Root / UUIDVar(id) / "info" =>
-//      for {
-//        postInfo <- req.as[PostContent]
-//        post     <- posts.updateInfo(id, postInfo)
-//        response <- post match {
-//          case Some(p) => Ok(p)
-//          case None    => NotFound(FailureResponse(s"Post with id $id not found"))
-//        }
-//      } yield response
-//  }
 
   private val deletePostRoute: HttpRoutes[F] = HttpRoutes.of[F] {
     case DELETE -> Root / UUIDVar(id) =>

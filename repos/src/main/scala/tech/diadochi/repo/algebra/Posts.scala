@@ -20,6 +20,7 @@ trait Posts[F[_]: Monad] {
     } yield postId
 
   def all: F[List[Post]]
+  
   def find(id: UUID): F[Option[Post]]
 
   protected def updatePost(post: Post): F[Int]

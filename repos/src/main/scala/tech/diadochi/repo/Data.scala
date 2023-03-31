@@ -2,15 +2,15 @@ package tech.diadochi.repo
 
 import cats.effect.kernel.{MonadCancelThrow, Sync}
 import cats.effect.{Async, Resource}
-import cats.syntax.functor.toFunctorOps
+import cats.implicits.*
 import doobie.ExecutionContexts
 import doobie.hikari.HikariTransactor
 import tech.diadochi.core.Post
-import tech.diadochi.repo.algebra.Posts
+import tech.diadochi.repo.algebra.{PostContents, Posts}
 import tech.diadochi.repo.config.PostgresConfig
-import tech.diadochi.repo.live.LivePosts
+import tech.diadochi.repo.live.{LivePostContents, LivePosts}
 
-final case class Data[F[_]] private (posts: Posts[F])
+final case class Data[F[_]] private (posts: Posts[F], content: PostContents[F])
 
 object Data {
 
@@ -31,8 +31,9 @@ object Data {
   def apply[F[_]: Async](config: PostgresConfig): Resource[F, Data[F]] =
     postgresResource[F](config).evalMap { transactor =>
       for {
-        posts <- LivePosts[F](transactor)
-      } yield new Data[F](posts)
+        posts   <- LivePosts[F](transactor)
+        content <- LivePostContents[F](transactor)
+      } yield new Data[F](posts, content)
     }
 
 }
