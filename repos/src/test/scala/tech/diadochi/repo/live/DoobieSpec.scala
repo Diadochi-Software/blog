@@ -4,17 +4,20 @@ import cats.effect.*
 import doobie.*
 import doobie.hikari.HikariTransactor
 import doobie.implicits.*
+import doobie.util.*
 import org.testcontainers.containers.PostgreSQLContainer
+import org.typelevel.log4cats.Logger
+import org.typelevel.log4cats.slf4j.Slf4jLogger
 import tech.diadochi.core.Post
 
 trait DoobieSpec {
 
   val initScript: String
 
-  val posgtres: Resource[IO, PostgreSQLContainer[Nothing]] = {
+  val postgres: Resource[IO, PostgreSQLContainer[Nothing]] = {
     val acquire = IO {
       val container: PostgreSQLContainer[Nothing] =
-        new PostgreSQLContainer[Nothing]("postgres").withInitScript(initScript)
+        new PostgreSQLContainer("postgres").withInitScript(initScript)
       container.start()
       container
     }
@@ -24,7 +27,7 @@ trait DoobieSpec {
 
   val transactor: Resource[IO, Transactor[IO]] =
     for {
-      db <- posgtres
+      db <- postgres
       ce <- ExecutionContexts.fixedThreadPool[IO](1)
       xa <- HikariTransactor.newHikariTransactor[IO](
         "org.postgresql.Driver",

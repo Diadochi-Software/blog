@@ -14,8 +14,8 @@ lazy val log4catsVersion            = "2.4.0"
 lazy val tsecVersion                = "0.4.0"
 lazy val scalaTestVersion           = "3.2.12"
 lazy val scalaTestCatsEffectVersion = "1.4.0"
-lazy val testContainerVersion       = "1.17.3"
-lazy val logbackVersion             = "1.4.0"
+lazy val testContainerVersion       = "1.17.6"
+lazy val logbackVersion             = "1.4.6"
 lazy val slf4jVersion               = "2.0.0"
 lazy val javaMailVersion            = "1.6.2"
 
@@ -70,8 +70,7 @@ lazy val server = (project in file("server"))
 //      "org.scalatest"         %% "scalatest"           % scalaTestVersion % Test,
 //      "org.typelevel"     %% "cats-effect-testing-scalatest" % scalaTestCatsEffectVersion % Test,
 //      "org.testcontainers" % "testcontainers"                % testContainerVersion       % Test,
-//      "org.testcontainers" % "postgresql"                    % testContainerVersion       % Test,
-//      "ch.qos.logback"     % "logback-classic"               % logbackVersion             % Test
+//      "org.testcontainers" % "postgresql"                    % testContainerVersion       % Test
     )
   )
   .dependsOn(repos, core)
@@ -85,7 +84,8 @@ lazy val repos = (project in file("repos"))
       "org.tpolecat"      %% "doobie-postgres"  % doobieVersion,
       "org.tpolecat"      %% "doobie-scalatest" % doobieVersion        % Test,
       "org.testcontainers" % "testcontainers"   % testContainerVersion % Test,
-      "org.testcontainers" % "postgresql"       % testContainerVersion % Test
+      "org.testcontainers" % "postgresql"       % testContainerVersion % Test,
+      "ch.qos.logback"     % "logback-classic"  % logbackVersion       % Test
     )
   )
   .dependsOn(core)

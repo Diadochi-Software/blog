@@ -26,6 +26,15 @@ class PostsSpec
         program asserting (_ shouldBe None)
       }
     }
+    "should retrieve a post by id" in {
+      transactor.use { xa =>
+        val program = for {
+          posts     <- LivePosts[IO](xa)
+          retrieved <- posts.find(newPost.id)
+        } yield retrieved
+        program asserting (_ shouldBe Some(newPost))
+      }
+    }
   }
 
 }
