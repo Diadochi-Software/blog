@@ -13,12 +13,14 @@ import tech.diadochi.core.{Post, PostContent}
 import tech.diadochi.repo.algebra.Posts
 import tech.diadochi.server.logging.syntax.*
 import tech.diadochi.server.responses.FailureResponse
+import tech.diadochi.server.validation.Validators.postContentValidator
+import tech.diadochi.server.validation.syntax.HttpValidationDsl
 
 import java.time.LocalDateTime
 import java.util.UUID
 import scala.collection.mutable
 
-class PostsRoutes[F[_]: Concurrent: Logger] private (posts: Posts[F]) extends Http4sDsl[F] {
+class PostsRoutes[F[_]: Concurrent: Logger] private (posts: Posts[F]) extends HttpValidationDsl[F] {
 
   private val allPostsRoute: HttpRoutes[F] = HttpRoutes.of[F] { case POST -> Root =>
     for {
@@ -39,11 +41,14 @@ class PostsRoutes[F[_]: Concurrent: Logger] private (posts: Posts[F]) extends Ht
 
   private val createPostRoute: HttpRoutes[F] = HttpRoutes.of[F] {
     case req @ POST -> Root / "create" =>
-      (for {
-        postInfo <- req.as[PostContent]
-        post     <- posts.create("john@doe.com", postInfo)
-        response <- Created(post)
-      } yield response).logError(_.getMessage)
+      req
+        .validate[PostContent] { postInfo =>
+          for {
+            post     <- posts.create("john@doe.com", postInfo)
+            response <- Created(post)
+          } yield response
+        }
+        .logError(_.getMessage)
   }
 
   private val updatePostRoute: HttpRoutes[F] = HttpRoutes.of[F] {
