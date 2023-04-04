@@ -16,6 +16,8 @@ import org.typelevel.log4cats.Logger
 import org.typelevel.log4cats.slf4j.Slf4jLogger
 import tech.diadochi.core.{Post, PostContent}
 import tech.diadochi.repo.algebra.{PostContents, Posts}
+import tech.diadochi.repo.filters.PostFilter
+import tech.diadochi.repo.pagination.Pagination
 import tech.diadochi.server.fixtures.PostFixture
 import tech.diadochi.server.logging.syntax.*
 import tech.diadochi.server.responses.FailureResponse
@@ -77,6 +79,8 @@ class PostsRoutesSpec
       if (id == newPostUuid) IO.pure(1)
       else IO.pure(0)
 
+    override def all(filter: PostFilter, pagination: Pagination): IO[List[Post]] =
+      IO.pure(List(newPost))
   }
 
   private val postRoutes: HttpRoutes[IO] = PostsRoutes[IO](posts).routes
