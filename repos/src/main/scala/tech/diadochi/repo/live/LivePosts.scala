@@ -2,18 +2,22 @@ package tech.diadochi.repo.live
 
 import cats.effect.kernel.MonadCancelThrow
 import cats.syntax.all.*
+import doobie.Fragments
 import doobie.implicits.*
 import doobie.implicits.javasql.*
 import doobie.postgres.implicits.*
 import doobie.util.*
 import doobie.util.transactor.Transactor
+import org.typelevel.log4cats.Logger
 import tech.diadochi.core.{Post, PostContent}
 import tech.diadochi.repo.algebra.{PostContents, Posts}
+import tech.diadochi.repo.filters.PostFilter
+import tech.diadochi.repo.pagination.Pagination
 
 import java.time.LocalDateTime
 import java.util.UUID
 
-class LivePosts[F[_]: MonadCancelThrow] private (
+class LivePosts[F[_]: MonadCancelThrow: Logger] private (
     xa: Transactor[F],
     override val postsInfo: PostContents[F]
 ) extends Posts[F] {
@@ -29,6 +33,27 @@ class LivePosts[F[_]: MonadCancelThrow] private (
       SELECT id, author_email, original_language, created_at, tags, isActive, image
       FROM posts
     """.query[Post].to[List].transact(xa)
+
+  override def all(filter: PostFilter, pagination: Pagination): F[List[Post]] = {
+
+    val select =
+      fr"""
+      SELECT id, author_email, original_language, created_at, tags, isActive, image
+    """
+
+    val from = fr"FROM posts"
+
+    val where = Fragments.whereAndOpt(
+      filter.authors.toNel.map(authors => Fragments.in(fr"author_email", authors)),
+      filter.tags.toNel.map(tags => Fragments.or(tags.toList.map(tag => fr"$tag=any(tags)"): _*))
+    )
+
+    val page = fr"ORDER BY id LIMIT ${pagination.limit} OFFSET ${pagination.offset}"
+
+    val statement = select |+| from |+| where |+| page
+
+    Logger[F].debug(statement.toString) *> statement.query[Post].to[List].transact(xa)
+  }
 
   override def find(id: UUID): F[Option[Post]] =
     sql"""
@@ -59,7 +84,7 @@ class LivePosts[F[_]: MonadCancelThrow] private (
 
 object LivePosts {
 
-  type PostData = (
+  private type PostData = (
       UUID,
       String,
       String,
@@ -90,7 +115,7 @@ object LivePosts {
       )
   }
 
-  def apply[F[_]: MonadCancelThrow](xa: Transactor[F]): F[LivePosts[F]] =
+  def apply[F[_]: MonadCancelThrow: Logger](xa: Transactor[F]): F[LivePosts[F]] =
     for {
       postsInfo <- LivePostContents[F](xa)
     } yield new LivePosts[F](xa, postsInfo)

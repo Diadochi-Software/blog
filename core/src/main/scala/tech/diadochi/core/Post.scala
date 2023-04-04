@@ -1,10 +1,10 @@
 package tech.diadochi.core
 
 import cats.Applicative
+import cats.syntax.all.*
 
 import java.time.LocalDateTime
 import java.util.UUID
-import cats.syntax.all.*
 
 case class Post(
     id: UUID,
@@ -25,6 +25,5 @@ object Post {
       originalLanguage = info.language,
       createdAt = LocalDateTime.now()
     ).pure[F]
-    
-    
+
 }

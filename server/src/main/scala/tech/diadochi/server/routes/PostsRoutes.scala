@@ -6,11 +6,14 @@ import cats.syntax.semigroup.*
 import io.circe.generic.auto.*
 import org.http4s.circe.CirceEntityCodec.*
 import org.http4s.dsl.Http4sDsl
+import org.http4s.dsl.io.OptionalQueryParamDecoderMatcher
 import org.http4s.server.Router
 import org.http4s.{EntityDecoder, HttpRoutes}
 import org.typelevel.log4cats.Logger
 import tech.diadochi.core.{Post, PostContent}
 import tech.diadochi.repo.algebra.Posts
+import tech.diadochi.repo.filters.PostFilter
+import tech.diadochi.repo.pagination.Pagination
 import tech.diadochi.server.logging.syntax.*
 import tech.diadochi.server.responses.FailureResponse
 import tech.diadochi.server.validation.Validators.postContentValidator
@@ -21,12 +24,15 @@ import java.util.UUID
 import scala.collection.mutable
 
 class PostsRoutes[F[_]: Concurrent: Logger] private (posts: Posts[F]) extends HttpValidationDsl[F] {
+  import PostsRoutes.*
 
-  private val allPostsRoute: HttpRoutes[F] = HttpRoutes.of[F] { case POST -> Root =>
-    for {
-      posts    <- posts.all
-      response <- Ok(posts)
-    } yield response
+  private val allPostsRoute: HttpRoutes[F] = HttpRoutes.of[F] {
+    case req @ POST -> Root :? LimitQueryParam(limit) +& OffsetQueryParam(offset) =>
+      for {
+        filter   <- req.as[PostFilter]
+        posts    <- posts.all(filter, Pagination(limit, offset))
+        response <- Ok(posts)
+      } yield response
   }
 
   private val findPostRoute: HttpRoutes[F] = HttpRoutes.of[F] { case GET -> Root / UUIDVar(id) =>
@@ -80,5 +86,10 @@ class PostsRoutes[F[_]: Concurrent: Logger] private (posts: Posts[F]) extends Ht
 }
 
 object PostsRoutes {
+
   def apply[F[_]: Concurrent: Logger](posts: Posts[F]): PostsRoutes[F] = new PostsRoutes[F](posts)
+
+  object LimitQueryParam  extends OptionalQueryParamDecoderMatcher[Int]("limit")
+  object OffsetQueryParam extends OptionalQueryParamDecoderMatcher[Int]("offset")
+
 }

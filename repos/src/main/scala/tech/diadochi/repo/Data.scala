@@ -5,6 +5,7 @@ import cats.effect.{Async, Resource}
 import cats.implicits.*
 import doobie.ExecutionContexts
 import doobie.hikari.HikariTransactor
+import org.typelevel.log4cats.Logger
 import tech.diadochi.core.Post
 import tech.diadochi.repo.algebra.{PostContents, Posts}
 import tech.diadochi.repo.config.PostgresConfig
@@ -28,7 +29,7 @@ object Data {
       )
     } yield transactor
 
-  def apply[F[_]: Async](config: PostgresConfig): Resource[F, Data[F]] =
+  def apply[F[_]: Async: Logger](config: PostgresConfig): Resource[F, Data[F]] =
     postgresResource[F](config).evalMap { transactor =>
       for {
         posts   <- LivePosts[F](transactor)

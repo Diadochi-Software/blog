@@ -3,6 +3,8 @@ package tech.diadochi.repo.algebra
 import cats.Monad
 import cats.syntax.all.*
 import tech.diadochi.core.{Post, PostContent}
+import tech.diadochi.repo.filters.PostFilter
+import tech.diadochi.repo.pagination.Pagination
 
 import java.util.UUID
 
@@ -21,6 +23,8 @@ trait Posts[F[_]: Monad] {
 
   def all: F[List[Post]]
   
+  def all(filter: PostFilter, pagination: Pagination): F[List[Post]]
+
   def find(id: UUID): F[Option[Post]]
 
   protected def updatePost(post: Post): F[Int]
