@@ -28,21 +28,21 @@ class PostsRoutes[F[_]: Concurrent: Logger] private (posts: Posts[F]) extends Ht
 
   private val allPostsRoute: HttpRoutes[F] = HttpRoutes.of[F] {
     case req @ POST -> Root :? LimitQueryParam(limit) +& OffsetQueryParam(offset) =>
-      for {
+      (for {
         filter   <- req.as[PostFilter]
         posts    <- posts.all(filter, Pagination(limit, offset))
         response <- Ok(posts)
-      } yield response
+      } yield response).logError(ex => "Error while getting posts" |+| ex.getMessage)
   }
 
   private val findPostRoute: HttpRoutes[F] = HttpRoutes.of[F] { case GET -> Root / UUIDVar(id) =>
-    for {
+    (for {
       maybePost <- posts.find(id)
       response <- maybePost match {
         case Some(post) => Ok(post)
         case None       => NotFound(FailureResponse(s"Post with id $id not found"))
       }
-    } yield response
+    } yield response).logError(ex => "Error while getting post" |+| ex.getMessage)
   }
 
   private val createPostRoute: HttpRoutes[F] = HttpRoutes.of[F] {
@@ -59,24 +59,24 @@ class PostsRoutes[F[_]: Concurrent: Logger] private (posts: Posts[F]) extends Ht
 
   private val updatePostRoute: HttpRoutes[F] = HttpRoutes.of[F] {
     case req @ PUT -> Root / UUIDVar(id) =>
-      for {
+      (for {
         post <- req.as[Post]
         post <- posts.update(post)
         response <- post match {
           case Some(p) => Ok(p)
           case None    => NotFound(FailureResponse(s"Post with id $id not found"))
         }
-      } yield response
+      } yield response).logError(ex => "Error while updating post" |+| ex.getMessage)
   }
 
   private val deletePostRoute: HttpRoutes[F] = HttpRoutes.of[F] {
     case DELETE -> Root / UUIDVar(id) =>
-      for {
+      (for {
         post <- posts.delete(id)
         response <-
           if (post == 0) NotFound(FailureResponse(s"Post with id $id not found"))
           else NoContent()
-      } yield response
+      } yield response).logError(ex => "Error while deleting post" |+| ex.getMessage)
   }
 
   val routes: HttpRoutes[F] = Router(

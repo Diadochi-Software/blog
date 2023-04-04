@@ -21,7 +21,7 @@ import scala.collection.mutable
 class PostContentRoutes[F[_]: Concurrent: Logger] private (postContents: PostContents[F])
     extends Http4sDsl[F] {
 
-  val insertContentRoute: HttpRoutes[F] = HttpRoutes.of[F] { case req @ POST -> Root =>
+  private val insertContentRoute: HttpRoutes[F] = HttpRoutes.of[F] { case req @ POST -> Root =>
     for {
       postInfo <- req.as[PostContent]
       post     <- postContents.create(postInfo)
@@ -29,7 +29,7 @@ class PostContentRoutes[F[_]: Concurrent: Logger] private (postContents: PostCon
     } yield response
   }
 
-  val updateContentRoutes: HttpRoutes[F] = HttpRoutes.of[F] {
+  private val updateContentRoutes: HttpRoutes[F] = HttpRoutes.of[F] {
     case req @ PUT -> Root / UUIDVar(id) / "info" =>
       for {
         postInfo <- req.as[PostContent]
@@ -41,13 +41,14 @@ class PostContentRoutes[F[_]: Concurrent: Logger] private (postContents: PostCon
       } yield response
   }
 
-  val deleteContentRoutes: HttpRoutes[F] = HttpRoutes.of[F] { case DELETE -> Root / UUIDVar(id) =>
-    for {
-      post <- postContents.delete(id, "en")
-      response <- 
-        if (post == 0) NotFound(FailureResponse(s"Post with id $id not found"))
-        else NoContent()
-    } yield response
+  private val deleteContentRoutes: HttpRoutes[F] = HttpRoutes.of[F] {
+    case DELETE -> Root / UUIDVar(id) =>
+      for {
+        post <- postContents.delete(id, "en")
+        response <-
+          if (post == 0) NotFound(FailureResponse(s"Post with id $id not found"))
+          else NoContent()
+      } yield response
   }
 
   val routes: HttpRoutes[F] = Router(
