@@ -12,7 +12,7 @@ import tech.diadochi.repo.algebra.{PostContents, Posts}
 
 import java.util.UUID
 
-class LivePostContents[F[_]: MonadCancelThrow](xa: Transactor[F]) extends PostContents[F] {
+private[repo] class LivePostContents[F[_]: MonadCancelThrow](xa: Transactor[F]) extends PostContents[F] {
 
   override def create(content: PostContent): F[(UUID, String)] =
     sql"""

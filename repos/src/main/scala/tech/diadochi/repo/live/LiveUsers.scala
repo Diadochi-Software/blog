@@ -12,10 +12,10 @@ import org.typelevel.log4cats.Logger
 import tech.diadochi.core.users.{Role, User}
 import tech.diadochi.repo.algebra.Users
 
-class LiveUsers[F[_]: MonadCancelThrow: Logger] private (xa: Transactor[F]) extends Users[F] {
+private[repo] class LiveUsers[F[_]: MonadCancelThrow: Logger] private (xa: Transactor[F])
+    extends Users[F] {
 
   import LiveUsers.given
-
 
   override def find(email: String): F[Option[User]] =
     sql"SELECT * FROM users WHERE email = $email"

@@ -17,7 +17,7 @@ import tech.diadochi.repo.pagination.Pagination
 import java.time.LocalDateTime
 import java.util.UUID
 
-class LivePosts[F[_]: MonadCancelThrow: Logger] private (
+private[repo] class LivePosts[F[_]: MonadCancelThrow: Logger] private (
     xa: Transactor[F],
     override val postsInfo: PostContents[F]
 ) extends Posts[F] {

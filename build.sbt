@@ -54,26 +54,17 @@ lazy val root = (project in file("."))
   .dependsOn(server)
   .aggregate(server, repos, core)
 
-lazy val server = (project in file("server"))
+lazy val core =
+  (project in file("core")).settings(name := "core", libraryDependencies ++= commonDependencies)
+
+lazy val authentication = (project in file("authentication"))
   .settings(
-    name := "server",
+    name := "authentication",
     libraryDependencies ++= commonDependencies ++ Seq(
-      "org.http4s" %% "http4s-dsl"          % http4sVersion,
-      "org.http4s" %% "http4s-ember-server" % http4sVersion,
-      "org.http4s" %% "http4s-circe"        % http4sVersion,
-      "org.slf4j"   % "slf4j-simple"        % slf4jVersion,
-      "io.circe"   %% "circe-generic"       % circeVersion,
-      "io.circe"   %% "circe-fs2"           % circeVersion
-//      "io.github.jmcardon"    %% "tsec-http4s"         % tsecVersion,
-//      "com.sun.mail"           % "javax.mail"          % javaMailVersion,
-//      "org.typelevel"         %% "log4cats-noop"       % log4catsVersion  % Test,
-//      "org.scalatest"         %% "scalatest"           % scalaTestVersion % Test,
-//      "org.typelevel"     %% "cats-effect-testing-scalatest" % scalaTestCatsEffectVersion % Test,
-//      "org.testcontainers" % "testcontainers"                % testContainerVersion       % Test,
-//      "org.testcontainers" % "postgresql"                    % testContainerVersion       % Test
+      "io.github.jmcardon" %% "tsec-http4s" % tsecVersion
     )
   )
-  .dependsOn(repos, core)
+  .dependsOn(core, repos)
 
 lazy val repos = (project in file("repos"))
   .settings(
@@ -90,5 +81,23 @@ lazy val repos = (project in file("repos"))
   )
   .dependsOn(core)
 
-lazy val core =
-  (project in file("core")).settings(name := "core", libraryDependencies ++= commonDependencies)
+lazy val server = (project in file("server"))
+  .settings(
+    name := "server",
+    libraryDependencies ++= commonDependencies ++ Seq(
+      "org.http4s" %% "http4s-dsl"          % http4sVersion,
+      "org.http4s" %% "http4s-ember-server" % http4sVersion,
+      "org.http4s" %% "http4s-circe"        % http4sVersion,
+      "org.slf4j"   % "slf4j-simple"        % slf4jVersion,
+      "io.circe"   %% "circe-generic"       % circeVersion,
+      "io.circe"   %% "circe-fs2"           % circeVersion
+      //      "io.github.jmcardon"    %% "tsec-http4s"         % tsecVersion,
+      //      "com.sun.mail"           % "javax.mail"          % javaMailVersion,
+      //      "org.typelevel"         %% "log4cats-noop"       % log4catsVersion  % Test,
+      //      "org.scalatest"         %% "scalatest"           % scalaTestVersion % Test,
+      //      "org.typelevel"     %% "cats-effect-testing-scalatest" % scalaTestCatsEffectVersion % Test,
+      //      "org.testcontainers" % "testcontainers"                % testContainerVersion       % Test,
+      //      "org.testcontainers" % "postgresql"                    % testContainerVersion       % Test
+    )
+  )
+  .dependsOn(repos, core, authentication)
