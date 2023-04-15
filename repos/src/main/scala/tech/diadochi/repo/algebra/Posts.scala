@@ -2,7 +2,7 @@ package tech.diadochi.repo.algebra
 
 import cats.Monad
 import cats.syntax.all.*
-import tech.diadochi.core.{Post, PostContent}
+import tech.diadochi.core.posts.{Post, PostContent}
 import tech.diadochi.repo.filters.PostFilter
 import tech.diadochi.repo.pagination.Pagination
 

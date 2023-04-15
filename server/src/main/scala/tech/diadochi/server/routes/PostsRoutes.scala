@@ -10,7 +10,7 @@ import org.http4s.dsl.io.OptionalQueryParamDecoderMatcher
 import org.http4s.server.Router
 import org.http4s.{EntityDecoder, HttpRoutes}
 import org.typelevel.log4cats.Logger
-import tech.diadochi.core.{Post, PostContent}
+import tech.diadochi.core.posts.{Post, PostContent}
 import tech.diadochi.repo.algebra.Posts
 import tech.diadochi.repo.filters.PostFilter
 import tech.diadochi.repo.pagination.Pagination

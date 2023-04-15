@@ -1,6 +1,6 @@
 package tech.diadochi.repo.fixtures
 
-import tech.diadochi.core.{Post, PostContent}
+import tech.diadochi.core.posts.{Post, PostContent}
 
 import java.time.LocalDateTime
 import java.util.UUID
@@ -20,7 +20,7 @@ trait PostFixture {
     )
 
   protected val anotherNewPost: Post = Post(
-    newPostUuid,
+    anotherNewPostUuid,
     "jane@doe.com",
     "en",
     LocalDateTime.parse("2023-03-31T18:56:32.728924"),
@@ -42,6 +42,6 @@ trait PostFixture {
       "Contenido increíble"
     )
 
-  protected val notFoundUuid: UUID = UUID.fromString("00000000-0000-0000-0000-000000000002")
+  protected val notFoundUuid: UUID = UUID.fromString("00000000-0000-0000-0000-000000000013")
 
 }

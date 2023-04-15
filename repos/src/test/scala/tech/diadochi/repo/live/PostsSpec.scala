@@ -46,7 +46,7 @@ class PostsSpec
           posts     <- LivePosts[IO](xa)
           retrieved <- posts.all(Pagination(Some(2), None))
         } yield retrieved
-        program asserting (_ shouldBe List(newPost))
+        program asserting (_ shouldBe List(newPost, anotherNewPost))
       }
     }
   }

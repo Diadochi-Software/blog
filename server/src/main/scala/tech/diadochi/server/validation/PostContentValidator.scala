@@ -3,7 +3,7 @@ package tech.diadochi.server.validation
 import cats.data.Validated.*
 import cats.implicits.*
 import cats.syntax.all.*
-import tech.diadochi.core.PostContent
+import tech.diadochi.core.posts.PostContent
 import tech.diadochi.server.validation.ValidationFailure.InvalidLanguageFormat
 import tech.diadochi.server.validation.Validator.{ValidationResult, validateRequired}
 

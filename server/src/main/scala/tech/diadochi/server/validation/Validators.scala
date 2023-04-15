@@ -3,7 +3,7 @@ package tech.diadochi.server.validation
 import cats.*
 import cats.data.Validated.*
 import cats.implicits.*
-import tech.diadochi.core.PostContent
+import tech.diadochi.core.posts.PostContent
 
 import java.util.UUID
 

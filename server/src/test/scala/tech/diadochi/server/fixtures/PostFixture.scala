@@ -1,6 +1,6 @@
 package tech.diadochi.server.fixtures
 
-import tech.diadochi.core.{Post, PostContent}
+import tech.diadochi.core.posts.{Post, PostContent}
 
 import java.time.LocalDateTime
 import java.util.UUID

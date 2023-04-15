@@ -1,7 +1,8 @@
-package tech.diadochi.core
+package tech.diadochi.core.posts
 
 import cats.Applicative
 import cats.syntax.all.*
+import tech.diadochi.core.posts.PostContent
 
 import java.time.LocalDateTime
 import java.util.UUID

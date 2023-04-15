@@ -8,7 +8,7 @@ import doobie.util.*
 import org.testcontainers.containers.PostgreSQLContainer
 import org.typelevel.log4cats.Logger
 import org.typelevel.log4cats.slf4j.Slf4jLogger
-import tech.diadochi.core.Post
+import tech.diadochi.core.posts.Post
 
 trait DoobieSpec {
 

@@ -9,7 +9,7 @@ import org.http4s.dsl.Http4sDsl
 import org.http4s.server.Router
 import org.http4s.{EntityDecoder, HttpRoutes}
 import org.typelevel.log4cats.Logger
-import tech.diadochi.core.{Post, PostContent}
+import tech.diadochi.core.posts.{Post, PostContent}
 import tech.diadochi.repo.algebra.{PostContents, Posts}
 import tech.diadochi.server.logging.syntax.*
 import tech.diadochi.server.responses.FailureResponse

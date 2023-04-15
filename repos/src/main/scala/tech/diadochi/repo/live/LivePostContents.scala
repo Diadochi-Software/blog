@@ -7,7 +7,7 @@ import doobie.implicits.javasql.*
 import doobie.postgres.implicits.*
 import doobie.util.*
 import doobie.util.transactor.Transactor
-import tech.diadochi.core.{Post, PostContent}
+import tech.diadochi.core.posts.{Post, PostContent}
 import tech.diadochi.repo.algebra.{PostContents, Posts}
 
 import java.util.UUID

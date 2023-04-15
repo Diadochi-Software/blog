@@ -14,7 +14,7 @@ import org.scalatest.freespec.AsyncFreeSpec
 import org.scalatest.matchers.should.Matchers
 import org.typelevel.log4cats.Logger
 import org.typelevel.log4cats.slf4j.Slf4jLogger
-import tech.diadochi.core.{Post, PostContent}
+import tech.diadochi.core.posts.{Post, PostContent}
 import tech.diadochi.repo.algebra.{PostContents, Posts}
 import tech.diadochi.repo.filters.PostFilter
 import tech.diadochi.repo.pagination.Pagination
@@ -61,7 +61,10 @@ class PostsRoutesSpec
 
     override protected def insertPost(post: Post): IO[UUID] = IO.pure(newPostUuid)
 
-    override def all: IO[List[Post]] = IO.pure(List(newPost))
+    override def all(pagination: Pagination): IO[List[Post]] = IO.pure(List(newPost))
+
+    override def all(filter: PostFilter, pagination: Pagination): IO[List[Post]] =
+      IO.pure(List(newPost))
 
     override def find(id: UUID): IO[Option[Post]] =
       if (id == newPostUuid) IO.pure(Some(newPost))
@@ -79,8 +82,6 @@ class PostsRoutesSpec
       if (id == newPostUuid) IO.pure(1)
       else IO.pure(0)
 
-    override def all(filter: PostFilter, pagination: Pagination): IO[List[Post]] =
-      IO.pure(List(newPost))
   }
 
   private val postRoutes: HttpRoutes[IO] = PostsRoutes[IO](posts).routes
@@ -104,7 +105,7 @@ class PostsRoutesSpec
       for {
         response <- postRoutes.orNotFound.run(
           Request[IO](
-            method = Method.POST,
+            method = Method.GET,
             uri"/posts"
           )
         )

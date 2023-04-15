@@ -9,7 +9,7 @@ import doobie.postgres.implicits.*
 import doobie.util.*
 import doobie.util.transactor.Transactor
 import org.typelevel.log4cats.Logger
-import tech.diadochi.core.{Post, PostContent}
+import tech.diadochi.core.posts.{Post, PostContent}
 import tech.diadochi.repo.algebra.{PostContents, Posts}
 import tech.diadochi.repo.filters.PostFilter
 import tech.diadochi.repo.pagination.Pagination

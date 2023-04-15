@@ -1,4 +1,4 @@
-package tech.diadochi.core
+package tech.diadochi.core.posts
 
 import java.util.UUID
 import scala.annotation.unused

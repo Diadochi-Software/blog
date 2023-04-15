@@ -3,7 +3,7 @@ package tech.diadochi.repo.algebra
 import cats.Monad
 import cats.syntax.all.*
 import doobie.implicits.toSqlInterpolator
-import tech.diadochi.core.PostContent
+import tech.diadochi.core.posts.PostContent
 
 import java.util.UUID
 

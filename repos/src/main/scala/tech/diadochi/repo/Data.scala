@@ -6,7 +6,7 @@ import cats.implicits.*
 import doobie.ExecutionContexts
 import doobie.hikari.HikariTransactor
 import org.typelevel.log4cats.Logger
-import tech.diadochi.core.Post
+import tech.diadochi.core.posts.Post
 import tech.diadochi.repo.algebra.{PostContents, Posts}
 import tech.diadochi.repo.config.PostgresConfig
 import tech.diadochi.repo.live.{LivePostContents, LivePosts}
