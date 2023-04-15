@@ -1,4 +1,4 @@
-package tech.diadochi.repo.fixtures
+package tech.diadochi.core.fixtures
 
 import tech.diadochi.core.posts.{Post, PostContent}
 

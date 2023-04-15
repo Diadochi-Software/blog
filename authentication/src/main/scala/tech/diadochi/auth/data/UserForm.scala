@@ -3,8 +3,10 @@ package tech.diadochi.auth.data
 import tech.diadochi.core.users.Role
 
 final case class UserForm(
-    firstName: Option[String],
-    lastName: Option[String],
+    email: String,
+    password: String,
+    firstName: String,
+    lastName: String,
     company: Option[String],
     role: Role
 )

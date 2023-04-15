@@ -4,7 +4,8 @@ import cats.Applicative
 import cats.implicits.catsSyntaxApplicativeId
 import tech.diadochi.auth.algebra.Auth
 import tech.diadochi.auth.algebra.Auth.{Authenticator, JWTToken}
-import tech.diadochi.auth.data.UserForm
+import tech.diadochi.auth.data.{NewPasswordInfo, UserForm}
+import tech.diadochi.auth.errors.ChangePasswordError
 import tech.diadochi.core.users.User
 import tech.diadochi.repo.algebra.Users
 
@@ -13,9 +14,12 @@ final class LiveAuth[F[_]] private (users: Users[F], authenticator: Authenticato
 
   override def login(email: String, password: String): F[Option[JWTToken]] = ???
 
-  override def signup(email: String, password: String, userInfo: UserForm): F[Option[User]] = ???
+  override def signup(form: UserForm): F[Option[User]] = ???
 
-  override def changePassword(email: String, newPassword: String): F[Either[String, User]] = ???
+  override def changePassword(
+      email: String,
+      newPassword: NewPasswordInfo
+  ): F[Either[ChangePasswordError, User]] = ???
 
 }
 

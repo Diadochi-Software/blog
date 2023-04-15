@@ -1,4 +1,4 @@
-package tech.diadochi.repo.fixtures
+package tech.diadochi.core.fixtures
 
 import cats.syntax.option.*
 import tech.diadochi.core.users.{Role, User}
@@ -8,8 +8,8 @@ trait UserFixture {
   protected val JohnDoe: User = User(
     "john@doe.com",
     "a hashed password",
-    "John".some,
-    "Doe".some,
+    "John",
+    "Doe",
     "CompanyTM".some,
     Role.ADMIN
   )
@@ -23,8 +23,8 @@ trait UserFixture {
     User(
       "jane@doe.com",
       "another hashed password",
-      "John".some,
-      "Doe".some,
+      "John",
+      "Doe",
       "CompanyTM".some,
       Role.AUTHOR
     )
@@ -33,8 +33,8 @@ trait UserFixture {
     User(
       "new@user.com",
       "a new password",
-      "New".some,
-      "User".some,
+      "New",
+      "User",
       "New Company".some,
       Role.READER
     )
