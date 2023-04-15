@@ -2,6 +2,16 @@ CREATE DATABASE blog;
 
 \c blog;
 
+CREATE TABLE users
+(
+    email          TEXT PRIMARY KEY,
+    hashedPassword TEXT NOT NULL,
+    firstName      TEXT,
+    lastName       TEXT,
+    company        TEXT,
+    role           TEXT NOT NULL
+);
+
 CREATE TABLE posts
 (
     id                UUID PRIMARY KEY,
@@ -10,7 +20,8 @@ CREATE TABLE posts
     created_at        TIMESTAMP NOT NULL,
     tags              TEXT[]    NOT NULL,
     isActive          BOOLEAN   NOT NULL,
-    image             TEXT      NULL
+    image             TEXT      NULL,
+    FOREIGN KEY (author_email) REFERENCES users (email)
 );
 
 CREATE TABLE post_info
