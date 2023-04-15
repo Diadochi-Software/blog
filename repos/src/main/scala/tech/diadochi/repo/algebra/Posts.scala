@@ -21,8 +21,8 @@ trait Posts[F[_]: Monad] {
       _      <- postsInfo.create(postInfo.copy(postId = Some(postId)))
     } yield postId
 
-  def all: F[List[Post]]
-  
+  def all(pagination: Pagination): F[List[Post]]
+
   def all(filter: PostFilter, pagination: Pagination): F[List[Post]]
 
   def find(id: UUID): F[Option[Post]]

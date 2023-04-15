@@ -27,4 +27,13 @@ VALUES ('00000000-0000-0000-0000-000000000001',
         '2023-03-31T18:56:32.728924',
         ARRAY ['tag1', 'tag2'],
         FALSE,
+        NULL);
+
+INSERT INTO posts(id, author_email, original_language, created_at, tags, isActive, image)
+VALUES ('00000000-0000-0000-0000-000000000002',
+        'jane@doe.com',
+        'en',
+        '2023-03-31T18:56:32.728924',
+        ARRAY ['tag2', 'tag3'],
+        FALSE,
         NULL)

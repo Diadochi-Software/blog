@@ -8,6 +8,7 @@ import org.typelevel.log4cats.Logger
 import org.typelevel.log4cats.slf4j.Slf4jLogger
 import tech.diadochi.repo.fixtures.PostFixture
 import tech.diadochi.repo.live.DoobieSpec
+import tech.diadochi.repo.pagination.Pagination
 
 class PostsSpec
     extends AsyncFreeSpec
@@ -37,6 +38,15 @@ class PostsSpec
           retrieved <- posts.find(newPost.id)
         } yield retrieved
         program asserting (_ shouldBe Some(newPost))
+      }
+    }
+    "should return 2 posts" in {
+      transactor.use { xa =>
+        val program = for {
+          posts     <- LivePosts[IO](xa)
+          retrieved <- posts.all(Pagination(Some(2), None))
+        } yield retrieved
+        program asserting (_ shouldBe List(newPost))
       }
     }
   }

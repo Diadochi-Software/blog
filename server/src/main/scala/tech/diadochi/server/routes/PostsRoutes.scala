@@ -27,6 +27,14 @@ class PostsRoutes[F[_]: Concurrent: Logger] private (posts: Posts[F]) extends Ht
   import PostsRoutes.*
 
   private val allPostsRoute: HttpRoutes[F] = HttpRoutes.of[F] {
+    case req @ GET -> Root :? LimitQueryParam(limit) +& OffsetQueryParam(offset) =>
+      (for {
+        posts    <- posts.all(Pagination(limit, offset))
+        response <- Ok(posts)
+      } yield response).logError(ex => "Error while getting posts" |+| ex.getMessage)
+  }
+
+  private val allFilteredPostsRoute: HttpRoutes[F] = HttpRoutes.of[F] {
     case req @ POST -> Root :? LimitQueryParam(limit) +& OffsetQueryParam(offset) =>
       (for {
         filter   <- req.as[PostFilter]
@@ -80,7 +88,7 @@ class PostsRoutes[F[_]: Concurrent: Logger] private (posts: Posts[F]) extends Ht
   }
 
   val routes: HttpRoutes[F] = Router(
-    "/posts" -> (allPostsRoute <+> findPostRoute <+> createPostRoute <+> updatePostRoute <+> deletePostRoute)
+    "/posts" -> (allPostsRoute <+> allFilteredPostsRoute <+> findPostRoute <+> createPostRoute <+> updatePostRoute <+> deletePostRoute)
   )
 
 }

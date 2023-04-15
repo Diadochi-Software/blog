@@ -28,10 +28,11 @@ class LivePosts[F[_]: MonadCancelThrow: Logger] private (
       VALUES (${post.id}, ${post.authorEmail}, ${post.originalLanguage}, ${post.createdAt}, ${post.tags}, ${post.active}, ${post.maybeImage})
     """.update.withUniqueGeneratedKeys[UUID]("id").transact(xa)
 
-  override def all: F[List[Post]] =
+  override def all(pagination: Pagination): F[List[Post]] =
     sql"""
       SELECT id, author_email, original_language, created_at, tags, isActive, image
       FROM posts
+      ORDER BY id LIMIT ${pagination.limit} OFFSET ${pagination.offset}
     """.query[Post].to[List].transact(xa)
 
   override def all(filter: PostFilter, pagination: Pagination): F[List[Post]] = {

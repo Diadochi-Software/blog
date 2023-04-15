@@ -7,7 +7,8 @@ import java.util.UUID
 
 trait PostFixture {
 
-  protected val newPostUuid: UUID = UUID.fromString("00000000-0000-0000-0000-000000000001")
+  protected val newPostUuid: UUID        = UUID.fromString("00000000-0000-0000-0000-000000000001")
+  protected val anotherNewPostUuid: UUID = UUID.fromString("00000000-0000-0000-0000-000000000002")
 
   protected val newPost: Post =
     Post(
@@ -17,6 +18,14 @@ trait PostFixture {
       LocalDateTime.parse("2023-03-31T18:56:32.728924"),
       List("tag1", "tag2")
     )
+
+  protected val anotherNewPost: Post = Post(
+    newPostUuid,
+    "jane@doe.com",
+    "en",
+    LocalDateTime.parse("2023-03-31T18:56:32.728924"),
+    List("tag2", "tag3")
+  )
 
   protected val updatedPost: Post =
     Post(newPostUuid, "jane@doe.com", "es", LocalDateTime.parse("2023-03-31T18:56:32.728924"))
