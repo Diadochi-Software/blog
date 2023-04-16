@@ -14,7 +14,7 @@ trait Auth[F[_]] {
 
   def login(email: String, password: String): F[Either[AuthenticationError, JWTToken]]
 
-  def signup(form: UserForm): F[Option[User]]
+  def signup(form: UserForm): F[Either[AuthenticationError, User]]
 
   def changePassword(
       email: String,

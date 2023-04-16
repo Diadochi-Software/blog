@@ -9,7 +9,7 @@ import tech.diadochi.auth.algebra.Auth.{Authenticator, JWTToken}
 import tech.diadochi.auth.data.{NewPasswordInfo, UserForm}
 import tech.diadochi.auth.errors.AuthenticationError
 import tech.diadochi.auth.errors.AuthenticationError.*
-import tech.diadochi.core.users.User
+import tech.diadochi.core.users.{Role, User}
 import tech.diadochi.repo.algebra.Users
 import tsec.common.{VerificationFailed, VerificationStatus, Verified}
 import tsec.passwordhashers.PasswordHash
@@ -35,7 +35,32 @@ final class LiveAuth[F[_]: Async] private (users: Users[F], authenticator: Authe
       token     <- EitherT.right(authenticator.create(validUser.email))
     } yield token).value
 
-  override def signup(form: UserForm): F[Option[User]] = ???
+  private def validateForm(form: UserForm): EitherT[F, AuthenticationError, User] =
+    EitherT {
+      for {
+        maybeUser <- users.find(form.email)
+        user <- maybeUser match {
+          case Some(_) => AuthenticationError.UserAlreadyExists(form.email).asLeft[User].pure[F]
+          case None =>
+            for {
+              hashedPassword <- BCrypt.hashpw[F](form.password)
+            } yield User(
+              form.email,
+              hashedPassword,
+              form.firstName,
+              form.lastName,
+              form.company,
+              Role.READER
+            ).asRight[AuthenticationError]
+        }
+      } yield user
+    }
+
+  override def signup(form: UserForm): F[Either[AuthenticationError, User]] =
+    (for {
+      user <- validateForm(form)
+      _    <- EitherT.right(users.create(user))
+    } yield user).value
 
   override def changePassword(
       email: String,

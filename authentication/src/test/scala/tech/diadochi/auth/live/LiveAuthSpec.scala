@@ -11,7 +11,7 @@ import org.typelevel.log4cats.slf4j.Slf4jLogger
 import tech.diadochi.auth.algebra.Auth.Authenticator
 import tech.diadochi.auth.data.{NewPasswordInfo, UserForm}
 import tech.diadochi.auth.errors.AuthenticationError
-import tech.diadochi.auth.errors.AuthenticationError.{InvalidPassword, UserNotFound}
+import tech.diadochi.auth.errors.AuthenticationError.{InvalidPassword, UserAlreadyExists, UserNotFound}
 import tech.diadochi.core.fixtures.UserFixture
 import tech.diadochi.core.users.{Role, User}
 import tech.diadochi.repo.algebra.Users
@@ -53,14 +53,14 @@ class LiveAuthSpec extends AsyncFreeSpec with AsyncIOSpec with Matchers with Use
     "signup should not create a user with an existing email" in {
       (for {
         auth      <- LiveAuth[IO](mockedUsers, mockedAuthenticator)
-        maybeUser <- auth.signup(JohnDoe)
-      } yield maybeUser) asserting (_ shouldBe None)
+        maybeUser <- auth.signup(JohnDoeForm)
+      } yield maybeUser) asserting (_ shouldBe Left(UserAlreadyExists(JohnDoe.email)))
     }
     "signup should create a user with a new email" in {
       (for {
         auth      <- LiveAuth[IO](mockedUsers, mockedAuthenticator)
-        maybeUser <- auth.signup(JaneDoe)
-      } yield maybeUser) asserting (_ shouldBe Some(JaneDoe))
+        maybeUser <- auth.signup(NewUserForm)
+      } yield maybeUser) asserting (res => assert(res.isRight))
     }
 
     "changePassword should return Left[UserNotFound] if the user doesn't exist" in {
@@ -100,16 +100,23 @@ class LiveAuthSpec extends AsyncFreeSpec with AsyncIOSpec with Matchers with Use
 
 object LiveAuthSpec extends UserFixture {
 
-  given userToForm: Conversion[User, UserForm] with {
-    def apply(user: User): UserForm = UserForm(
-      user.email,
-      user.hashedPassword,
-      user.firstName,
-      user.lastName,
-      Some("Company"),
-      Role.READER
-    )
-  }
+  private val NewUserForm = UserForm(
+    "new@user.com",
+    validPassword,
+    "New",
+    "User",
+    Some("New Company"),
+    Role.READER
+  )
+
+  private val JohnDoeForm = UserForm(
+    "john@doe.com",
+    validPassword,
+    "John",
+    "Doe",
+    Some("CompanyTM"),
+    Role.ADMIN
+  )
 
   private val mockedUsers = new Users[IO] {
 
