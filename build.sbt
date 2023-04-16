@@ -24,7 +24,8 @@ val commonDependencies = Seq(
   "org.typelevel"         %% "log4cats-slf4j"                % log4catsVersion,
   "com.github.pureconfig" %% "pureconfig-core"               % pureConfigVersion,
   "org.typelevel"         %% "cats-effect-testing-scalatest" % scalaTestCatsEffectVersion % Test,
-  "org.scalatest"         %% "scalatest"                     % scalaTestVersion           % Test
+  "org.scalatest"         %% "scalatest"                     % scalaTestVersion           % Test,
+  "org.typelevel"         %% "log4cats-noop"                 % log4catsVersion            % Test
 )
 
 lazy val root = (project in file("."))
@@ -46,13 +47,12 @@ lazy val root = (project in file("."))
 //      "org.slf4j"              % "slf4j-simple"        % slf4jVersion,
 //      "io.github.jmcardon"    %% "tsec-http4s"         % tsecVersion,
 //      "com.sun.mail"           % "javax.mail"          % javaMailVersion,
-//      "org.typelevel"         %% "log4cats-noop"       % log4catsVersion  % Test,
 //      "ch.qos.logback"     % "logback-classic"               % logbackVersion             % Test
 //    )
     Compile / mainClass := Some("tech.diadochi.blog.Main")
   )
   .dependsOn(server)
-  .aggregate(server, repos, core)
+  .aggregate(authentication, server, repos, core)
 
 lazy val core =
   (project in file("core")).settings(name := "core", libraryDependencies ++= commonDependencies)

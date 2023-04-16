@@ -15,7 +15,6 @@ import tech.diadochi.auth.errors.AuthenticationError.{InvalidPassword, UserNotFo
 import tech.diadochi.core.fixtures.UserFixture
 import tech.diadochi.core.users.{Role, User}
 import tech.diadochi.repo.algebra.Users
-import tech.diadochi.repo.live.DoobieSpec
 import tsec.authentication
 import tsec.authentication.{AugmentedJWT, IdentityStore, JWTAuthenticator}
 import tsec.mac.jca.HMACSHA256
@@ -35,20 +34,20 @@ class LiveAuthSpec extends AsyncFreeSpec with AsyncIOSpec with Matchers with Use
     "login should return Left[UserNotFound] if the user doesn't exist" in {
       (for {
         auth       <- LiveAuth[IO](mockedUsers, mockedAuthenticator)
-        maybeToken <- auth.login(nonExistentEmail, "password")
+        maybeToken <- auth.login(nonExistentEmail, "invalid password password")
       } yield maybeToken) asserting (_ shouldBe Left(UserNotFound(nonExistentEmail)))
     }
     "login should return Left[InvalidPassword] if the user exists but the password is wrong" in {
       (for {
         auth       <- LiveAuth[IO](mockedUsers, mockedAuthenticator)
-        maybeToken <- auth.login(JohnDoe.email, "password")
+        maybeToken <- auth.login(JohnDoe.email, "invalid password")
       } yield maybeToken) asserting (_ shouldBe Left(InvalidPassword))
     }
     "login should return Right(token) if the user exists and the password is correct" in {
       (for {
         auth       <- LiveAuth[IO](mockedUsers, mockedAuthenticator)
-        maybeToken <- auth.login(JohnDoe.email, JohnDoe.hashedPassword)
-      } yield maybeToken) asserting (_ shouldBe Right(Nothing))
+        maybeToken <- auth.login(JohnDoe.email, validPassword)
+      } yield maybeToken) asserting (res => assert(res.isRight))
     }
 
     "signup should not create a user with an existing email" in {

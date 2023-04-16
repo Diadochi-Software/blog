@@ -8,7 +8,7 @@ import org.scalatest.freespec.AsyncFreeSpec
 import org.scalatest.matchers.should.Matchers
 import org.typelevel.log4cats.Logger
 import org.typelevel.log4cats.slf4j.Slf4jLogger
-import tech.diadochi.core.fixtures.{PostFixture, UserFixture}
+import tech.diadochi.core.fixtures.UserFixture
 import tech.diadochi.repo.live.DoobieSpec
 import tech.diadochi.repo.pagination.Pagination
 

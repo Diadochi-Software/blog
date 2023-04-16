@@ -7,24 +7,30 @@ trait UserFixture {
 
   protected val nonExistentEmail = "not found"
 
+  protected val validPassword     = "a hashed password"
+
+  private val validPasswordHash = "$2a$10$cOnfEuIG3SsmNp3WpzHmTOOYk4DSfY8KAtWoxhpq0LM6RgKL76mrS"
+
   protected val JohnDoe: User = User(
     "john@doe.com",
-    "$2a$10$mvX89VIiN1BJIe7BJJ6jweQMDDcveZtNPZXtV/.3fljL6x3I1wy2K",
+    validPasswordHash,
     "John",
     "Doe",
     "CompanyTM".some,
     Role.ADMIN
   )
 
+  protected val updatedPassword = "a new hashed password"
+
   protected val UpdatedJohnDoe: User = JohnDoe.copy(
     company = "Another CompanyTM".some,
-    hashedPassword = "$2a$10$ZqreSjof/R4duVWv8JnJwe6Ed.eU2CIQ8v5tkYnViAGE8pHGVxMDS"
+    hashedPassword = "$2a$10$hHTuASLZ5NUnNetZLnmF9.B4pzrXaBNubF7HlLqOic12jZcoRAuiO"
   )
 
   protected val JaneDoe: User =
     User(
       "jane@doe.com",
-      "$2a$10$XB5lNTTyHJVkGIDn5p8VueMhRrmotVkUVv9cQ5RiZkCGNPzGadnc6",
+      validPasswordHash,
       "John",
       "Doe",
       "CompanyTM".some,
@@ -34,7 +40,7 @@ trait UserFixture {
   protected val NewUser: User =
     User(
       "new@user.com",
-      "$2a$10$1D4dFN028nX6GdlFWpnNbOHb1XTSBZu3p6xNhDHvn6ASbf7FRB9pq",
+      validPasswordHash,
       "New",
       "User",
       "New Company".some,
