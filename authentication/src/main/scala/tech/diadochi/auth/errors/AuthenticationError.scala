@@ -1,11 +1,15 @@
 package tech.diadochi.auth.errors
 
-trait AuthenticationError extends Throwable
+import io.circe.Codec
+
+sealed trait AuthenticationError(val error: String)
 
 object AuthenticationError {
 
-  final case class UserNotFound(email: String)      extends AuthenticationError
-  final case class UserAlreadyExists(email: String) extends AuthenticationError
-  case object InvalidPassword                       extends AuthenticationError
+  final case class UserNotFound(email: String)
+      extends AuthenticationError(s"User with email $email not found")
+  final case class UserAlreadyExists(email: String)
+      extends AuthenticationError(s"User with email $email already exists")
+  case object InvalidPassword extends AuthenticationError("Invalid password")
 
 }

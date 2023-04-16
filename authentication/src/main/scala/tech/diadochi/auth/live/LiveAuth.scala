@@ -6,17 +6,19 @@ import cats.effect.kernel.Async
 import cats.syntax.all.*
 import tech.diadochi.auth.algebra.Auth
 import tech.diadochi.auth.algebra.Auth.{Authenticator, JWTToken}
-import tech.diadochi.auth.forms.{ChangePasswordForm, SignupForm}
 import tech.diadochi.auth.errors.AuthenticationError
 import tech.diadochi.auth.errors.AuthenticationError.*
+import tech.diadochi.auth.forms.{ChangePasswordForm, SignupForm}
 import tech.diadochi.core.users.{Role, User}
 import tech.diadochi.repo.algebra.Users
 import tsec.common.{VerificationFailed, VerificationStatus, Verified}
 import tsec.passwordhashers.PasswordHash
 import tsec.passwordhashers.jca.BCrypt
 
-final class LiveAuth[F[_]: Async] private (users: Users[F], authenticator: Authenticator[F])
-    extends Auth[F] {
+final class LiveAuth[F[_]: Async] private (
+    users: Users[F],
+    override val authenticator: Authenticator[F]
+) extends Auth[F] {
 
   private def checkPassword(user: User, password: String) = EitherT[F, AuthenticationError, User] {
     BCrypt.checkpw[F](password, PasswordHash[BCrypt](user.hashedPassword)).map {

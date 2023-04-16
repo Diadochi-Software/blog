@@ -17,7 +17,10 @@ import org.scalatest.matchers.should.Matchers
 import org.typelevel.ci.CIStringSyntax
 import org.typelevel.log4cats.Logger
 import org.typelevel.log4cats.slf4j.Slf4jLogger
-import tech.diadochi.auth.algebra.Auth.JWTToken
+import tech.diadochi.auth.algebra.Auth
+import tech.diadochi.auth.algebra.Auth.{Authenticator, JWTToken}
+import tech.diadochi.auth.errors.AuthenticationError
+import tech.diadochi.auth.errors.AuthenticationError.{InvalidPassword, UserAlreadyExists, UserNotFound}
 import tech.diadochi.auth.fixtures.FormFixture
 import tech.diadochi.auth.forms.{ChangePasswordForm, LoginForm, SignupForm}
 import tech.diadochi.core.fixtures.UserFixture
@@ -35,8 +38,8 @@ import tsec.mac.jca.HMACSHA256
 import java.util.UUID
 import scala.concurrent.duration.*
 
-class AuthRoutesTest extends AsyncFreeSpec with AsyncIOSpec with Matchers with Http4sDsl[IO] {
-  import AuthRoutesTest.{*, given}
+class AuthRoutesSpec extends AsyncFreeSpec with AsyncIOSpec with Matchers with Http4sDsl[IO] {
+  import AuthRoutesSpec.{*, given}
 
   private val authRoutes: HttpRoutes[IO] = AuthRoutes[IO](mockedAuth).routes
 
@@ -104,7 +107,7 @@ class AuthRoutesTest extends AsyncFreeSpec with AsyncIOSpec with Matchers with H
             .withBearerToken(jwtToken)
         )
       } yield {
-        response.status shouldBe Status.Unauthorized
+        response.status shouldBe Status.Ok
       }
     }
     "logout should return 401 - unauthorized if logging out without a JWT token" in {
@@ -119,14 +122,14 @@ class AuthRoutesTest extends AsyncFreeSpec with AsyncIOSpec with Matchers with H
 
     "changePassword should return 404 - not found if user doesn't exist" in {
       for {
-        jwtToken <- mockedAuthenticator.create(NewUser.email)
+        jwtToken <- mockedAuthenticator.create(JaneDoe.email)
         response <- authRoutes.orNotFound.run(
           Request[IO](Method.POST, uri"/auth/change-password")
             .withBearerToken(jwtToken)
             .withEntity(
               ChangePasswordForm(
                 validPassword,
-                "another password "
+                "another password"
               )
             )
         )
@@ -143,7 +146,7 @@ class AuthRoutesTest extends AsyncFreeSpec with AsyncIOSpec with Matchers with H
             .withEntity(
               ChangePasswordForm(
                 "wrong password",
-                "another password "
+                "another password"
               )
             )
         )
@@ -188,7 +191,7 @@ class AuthRoutesTest extends AsyncFreeSpec with AsyncIOSpec with Matchers with H
 
 }
 
-object AuthRoutesTest extends FormFixture {
+object AuthRoutesSpec extends FormFixture {
 
   given logger: Logger[IO] = Slf4jLogger.getLogger[IO]
 
@@ -199,7 +202,29 @@ object AuthRoutesTest extends FormFixture {
         Authorization(Credentials.Token(AuthScheme.Bearer, jwtString))
       }
 
-  private val mockedAuth = ???
+  private val mockedAuth = new Auth[IO] {
+
+    override def login(email: String, password: String): IO[Either[AuthenticationError, JWTToken]] =
+      if email == JohnDoe.email && password == validPassword then
+        mockedAuthenticator.create(email).map(Right(_))
+      else IO.pure(Left(InvalidPassword))
+
+    override def signup(form: SignupForm): IO[Either[AuthenticationError, User]] =
+      if form.email == NewUserForm.email then IO.pure(Right(NewUser))
+      else IO.pure(Left(UserAlreadyExists(form.email)))
+
+    override def changePassword(
+        email: String,
+        newPassword: ChangePasswordForm
+    ): IO[Either[AuthenticationError, User]] =
+      if email == JohnDoe.email then
+        if newPassword.oldPassword == validPassword then IO.pure(Right(UpdatedJohnDoe))
+        else IO.pure(Left(InvalidPassword))
+      else IO.pure(Left(UserNotFound(email)))
+
+    override def authenticator: Authenticator[IO] = mockedAuthenticator
+
+  }
 
   private val mockedAuthenticator = {
 
