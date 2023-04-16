@@ -5,7 +5,8 @@ import cats.implicits.*
 import cats.syntax.all.*
 import tech.diadochi.core.posts.PostContent
 import tech.diadochi.server.validation.ValidationFailure.InvalidLanguageFormat
-import tech.diadochi.server.validation.Validator.{ValidationResult, validateRequired}
+import tech.diadochi.server.validation.Validator.ValidationResult
+import tech.diadochi.server.validation.validations.validateRequired
 
 class PostContentValidator extends Validator[PostContent] {
 

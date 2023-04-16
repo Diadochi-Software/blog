@@ -12,8 +12,11 @@ object ValidationFailure {
       extends ValidationFailure(s"Field $fieldName is required")
 
   case class InvalidLanguageFormat(language: String)
-    extends ValidationFailure(
-      s"Invalid language format: $language is not compliant with ISO 639-1"
-    )
+      extends ValidationFailure(
+        s"Invalid language format: $language is not compliant with ISO 639-1"
+      )
+
+  case class InvalidEmail(email: String)
+      extends ValidationFailure(s"Invalid email format: $email")
 
 }

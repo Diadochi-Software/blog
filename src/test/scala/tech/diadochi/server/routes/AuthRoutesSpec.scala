@@ -50,8 +50,8 @@ class AuthRoutesSpec extends AsyncFreeSpec with AsyncIOSpec with Matchers with H
           Request[IO](Method.POST, uri"/auth/login")
             .withEntity(
               LoginForm(
-                "test",
-                "test"
+                JohnDoe.email,
+                "invalid password"
               )
             )
         )
