@@ -6,7 +6,7 @@ import cats.effect.kernel.Async
 import cats.syntax.all.*
 import tech.diadochi.auth.algebra.Auth
 import tech.diadochi.auth.algebra.Auth.{Authenticator, JWTToken}
-import tech.diadochi.auth.data.{NewPasswordInfo, UserForm}
+import tech.diadochi.auth.forms.{ChangePasswordForm, SignupForm}
 import tech.diadochi.auth.errors.AuthenticationError
 import tech.diadochi.auth.errors.AuthenticationError.*
 import tech.diadochi.core.users.{Role, User}
@@ -35,7 +35,7 @@ final class LiveAuth[F[_]: Async] private (users: Users[F], authenticator: Authe
       token     <- EitherT.right(authenticator.create(validUser.email))
     } yield token).value
 
-  private def validateForm(form: UserForm): EitherT[F, AuthenticationError, User] =
+  private def validateForm(form: SignupForm): EitherT[F, AuthenticationError, User] =
     EitherT {
       for {
         maybeUser <- users.find(form.email)
@@ -56,7 +56,7 @@ final class LiveAuth[F[_]: Async] private (users: Users[F], authenticator: Authe
       } yield user
     }
 
-  override def signup(form: UserForm): F[Either[AuthenticationError, User]] =
+  override def signup(form: SignupForm): F[Either[AuthenticationError, User]] =
     (for {
       user <- validateForm(form)
       _    <- EitherT.right(users.create(user))
@@ -74,7 +74,7 @@ final class LiveAuth[F[_]: Async] private (users: Users[F], authenticator: Authe
 
   override def changePassword(
       email: String,
-      newPassword: NewPasswordInfo
+      newPassword: ChangePasswordForm
   ): F[Either[AuthenticationError, User]] =
     (for {
       user        <- findUser(email)

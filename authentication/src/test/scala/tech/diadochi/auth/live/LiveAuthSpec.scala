@@ -9,9 +9,14 @@ import org.scalatest.matchers.should.Matchers
 import org.typelevel.log4cats.Logger
 import org.typelevel.log4cats.slf4j.Slf4jLogger
 import tech.diadochi.auth.algebra.Auth.Authenticator
-import tech.diadochi.auth.data.{NewPasswordInfo, UserForm}
+import tech.diadochi.auth.forms.{ChangePasswordForm, SignupForm}
 import tech.diadochi.auth.errors.AuthenticationError
-import tech.diadochi.auth.errors.AuthenticationError.{InvalidPassword, UserAlreadyExists, UserNotFound}
+import tech.diadochi.auth.errors.AuthenticationError.{
+  InvalidPassword,
+  UserAlreadyExists,
+  UserNotFound
+}
+import tech.diadochi.auth.fixtures.FormFixture
 import tech.diadochi.core.fixtures.UserFixture
 import tech.diadochi.core.users.{Role, User}
 import tech.diadochi.repo.algebra.Users
@@ -22,9 +27,8 @@ import tsec.passwordhashers.PasswordHash
 import tsec.passwordhashers.jca.BCrypt
 
 import scala.concurrent.duration.*
-import scala.reflect.ClassTag.Nothing
 
-class LiveAuthSpec extends AsyncFreeSpec with AsyncIOSpec with Matchers with UserFixture {
+class LiveAuthSpec extends AsyncFreeSpec with AsyncIOSpec with Matchers {
 
   import LiveAuthSpec.{*, given}
 
@@ -53,7 +57,7 @@ class LiveAuthSpec extends AsyncFreeSpec with AsyncIOSpec with Matchers with Use
     "signup should not create a user with an existing email" in {
       (for {
         auth      <- LiveAuth[IO](mockedUsers, mockedAuthenticator)
-        maybeUser <- auth.signup(JohnDoeForm)
+        maybeUser <- auth.signup(JohnDoeSignup)
       } yield maybeUser) asserting (_ shouldBe Left(UserAlreadyExists(JohnDoe.email)))
     }
     "signup should create a user with a new email" in {
@@ -68,7 +72,7 @@ class LiveAuthSpec extends AsyncFreeSpec with AsyncIOSpec with Matchers with Use
         auth <- LiveAuth[IO](mockedUsers, mockedAuthenticator)
         res <- auth.changePassword(
           NewUser.email,
-          NewPasswordInfo("oldPassword", "new password")
+          ChangePasswordForm("oldPassword", "new password")
         )
       } yield res) asserting (_ shouldBe Left(UserNotFound(NewUser.email)))
     }
@@ -77,7 +81,7 @@ class LiveAuthSpec extends AsyncFreeSpec with AsyncIOSpec with Matchers with Use
         auth <- LiveAuth[IO](mockedUsers, mockedAuthenticator)
         res <- auth.changePassword(
           JohnDoe.email,
-          NewPasswordInfo("oldPassword", "new password")
+          ChangePasswordForm("oldPassword", "new password")
         )
       } yield res) asserting (_ shouldBe Left(InvalidPassword))
     }
@@ -86,7 +90,7 @@ class LiveAuthSpec extends AsyncFreeSpec with AsyncIOSpec with Matchers with Use
         auth <- LiveAuth[IO](mockedUsers, mockedAuthenticator)
         res <- auth.changePassword(
           JohnDoe.email,
-          NewPasswordInfo(validPassword, "new password")
+          ChangePasswordForm(validPassword, "new password")
         )
         isNicePassword <- res match
           case Right(user) =>
@@ -98,25 +102,7 @@ class LiveAuthSpec extends AsyncFreeSpec with AsyncIOSpec with Matchers with Use
 
 }
 
-object LiveAuthSpec extends UserFixture {
-
-  private val NewUserForm = UserForm(
-    "new@user.com",
-    validPassword,
-    "New",
-    "User",
-    Some("New Company"),
-    Role.READER
-  )
-
-  private val JohnDoeForm = UserForm(
-    "john@doe.com",
-    validPassword,
-    "John",
-    "Doe",
-    Some("CompanyTM"),
-    Role.ADMIN
-  )
+object LiveAuthSpec extends FormFixture {
 
   private val mockedUsers = new Users[IO] {
 

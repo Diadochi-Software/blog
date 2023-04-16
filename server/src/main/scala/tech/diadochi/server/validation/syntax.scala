@@ -5,8 +5,8 @@ import cats.data.{NonEmptyList, Validated}
 import cats.effect.IO
 import cats.implicits.*
 import io.circe.generic.semiauto.*
-import org.http4s.circe.CirceEntityEncoder.circeEntityEncoder
 import org.http4s.*
+import org.http4s.circe.CirceEntityEncoder.circeEntityEncoder
 import org.http4s.dsl.Http4sDsl
 import org.http4s.implicits.*
 import org.typelevel.log4cats.Logger
@@ -14,7 +14,8 @@ import tech.diadochi.server.logging.syntax.*
 
 object syntax {
 
-  trait HttpValidationDsl[F[_]: MonadThrow: Logger] extends Http4sDsl[F] {
+  trait HttpValidation[F[_]: MonadThrow: Logger] {
+    self: Http4sDsl[F] =>
 
     extension (req: Request[F]) {
       def validate[A: Validator](

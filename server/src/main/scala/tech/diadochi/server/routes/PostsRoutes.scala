@@ -17,13 +17,15 @@ import tech.diadochi.repo.pagination.Pagination
 import tech.diadochi.server.logging.syntax.*
 import tech.diadochi.server.responses.FailureResponse
 import tech.diadochi.server.validation.Validators.postContentValidator
-import tech.diadochi.server.validation.syntax.HttpValidationDsl
+import tech.diadochi.server.validation.syntax.HttpValidation
 
 import java.time.LocalDateTime
 import java.util.UUID
 import scala.collection.mutable
 
-class PostsRoutes[F[_]: Concurrent: Logger] private (posts: Posts[F]) extends HttpValidationDsl[F] {
+class PostsRoutes[F[_]: Concurrent: Logger] private (posts: Posts[F])
+    extends Http4sDsl[F]
+    with HttpValidation[F] {
   import PostsRoutes.*
 
   private val allPostsRoute: HttpRoutes[F] = HttpRoutes.of[F] {

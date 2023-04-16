@@ -5,13 +5,13 @@ import tech.diadochi.core.users.{Role, User}
 
 trait UserFixture {
 
-  protected val nonExistentEmail = "not found"
+  val nonExistentEmail = "not found"
 
-  protected val validPassword     = "a hashed password"
+  val validPassword = "a hashed password"
 
-  private val validPasswordHash = "$2a$10$cOnfEuIG3SsmNp3WpzHmTOOYk4DSfY8KAtWoxhpq0LM6RgKL76mrS"
+  val validPasswordHash = "$2a$10$cOnfEuIG3SsmNp3WpzHmTOOYk4DSfY8KAtWoxhpq0LM6RgKL76mrS"
 
-  protected val JohnDoe: User = User(
+  val JohnDoe: User = User(
     "john@doe.com",
     validPasswordHash,
     "John",
@@ -20,14 +20,14 @@ trait UserFixture {
     Role.ADMIN
   )
 
-  protected val updatedPassword = "a new hashed password"
+  val updatedPassword = "a new hashed password"
 
-  protected val UpdatedJohnDoe: User = JohnDoe.copy(
+  val UpdatedJohnDoe: User = JohnDoe.copy(
     company = "Another CompanyTM".some,
     hashedPassword = "$2a$10$hHTuASLZ5NUnNetZLnmF9.B4pzrXaBNubF7HlLqOic12jZcoRAuiO"
   )
 
-  protected val JaneDoe: User =
+  val JaneDoe: User =
     User(
       "jane@doe.com",
       validPasswordHash,
@@ -37,7 +37,7 @@ trait UserFixture {
       Role.AUTHOR
     )
 
-  protected val NewUser: User =
+  val NewUser: User =
     User(
       "new@user.com",
       validPasswordHash,

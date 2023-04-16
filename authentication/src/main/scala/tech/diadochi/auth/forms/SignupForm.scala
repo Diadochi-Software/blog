@@ -1,8 +1,8 @@
-package tech.diadochi.auth.data
+package tech.diadochi.auth.forms
 
 import tech.diadochi.core.users.Role
 
-final case class UserForm(
+final case class SignupForm(
     email: String,
     password: String,
     firstName: String,
