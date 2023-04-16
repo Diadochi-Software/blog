@@ -9,16 +9,11 @@ import org.scalatest.matchers.should.Matchers
 import org.typelevel.log4cats.Logger
 import org.typelevel.log4cats.slf4j.Slf4jLogger
 import tech.diadochi.auth.algebra.Auth.Authenticator
-import tech.diadochi.auth.forms.{ChangePasswordForm, SignupForm}
 import tech.diadochi.auth.errors.AuthenticationError
-import tech.diadochi.auth.errors.AuthenticationError.{
-  InvalidPassword,
-  UserAlreadyExists,
-  UserNotFound
-}
-import tech.diadochi.auth.fixtures.FormFixture
-import tech.diadochi.core.fixtures.UserFixture
+import tech.diadochi.auth.errors.AuthenticationError.{InvalidPassword, UserAlreadyExists, UserNotFound}
+import tech.diadochi.auth.forms.{ChangePasswordForm, SignupForm}
 import tech.diadochi.core.users.{Role, User}
+import tech.diadochi.fixtures.FormFixture
 import tech.diadochi.repo.algebra.Users
 import tsec.authentication
 import tsec.authentication.{AugmentedJWT, IdentityStore, JWTAuthenticator}

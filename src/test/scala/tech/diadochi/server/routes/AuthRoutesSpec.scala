@@ -21,11 +21,10 @@ import tech.diadochi.auth.algebra.Auth
 import tech.diadochi.auth.algebra.Auth.{Authenticator, JWTToken}
 import tech.diadochi.auth.errors.AuthenticationError
 import tech.diadochi.auth.errors.AuthenticationError.{InvalidPassword, UserAlreadyExists, UserNotFound}
-import tech.diadochi.auth.fixtures.FormFixture
 import tech.diadochi.auth.forms.{ChangePasswordForm, LoginForm, SignupForm}
-import tech.diadochi.core.fixtures.UserFixture
 import tech.diadochi.core.posts.{Post, PostContent}
 import tech.diadochi.core.users.User
+import tech.diadochi.fixtures.{FormFixture, UserFixture}
 import tech.diadochi.repo.algebra.{PostContents, Posts}
 import tech.diadochi.repo.filters.PostFilter
 import tech.diadochi.repo.pagination.Pagination

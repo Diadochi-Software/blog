@@ -1,4 +1,4 @@
-package tech.diadochi.core.fixtures
+package tech.diadochi.fixtures
 
 import cats.syntax.option.*
 import tech.diadochi.core.users.{Role, User}

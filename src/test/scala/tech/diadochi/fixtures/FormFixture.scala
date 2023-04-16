@@ -1,7 +1,6 @@
-package tech.diadochi.auth.fixtures
+package tech.diadochi.fixtures
 
 import tech.diadochi.auth.forms.{LoginForm, SignupForm}
-import tech.diadochi.core.fixtures.UserFixture
 import tech.diadochi.core.users.Role
 
 trait FormFixture extends UserFixture {
