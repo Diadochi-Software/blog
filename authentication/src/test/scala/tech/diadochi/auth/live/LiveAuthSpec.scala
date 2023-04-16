@@ -10,7 +10,8 @@ import org.typelevel.log4cats.Logger
 import org.typelevel.log4cats.slf4j.Slf4jLogger
 import tech.diadochi.auth.algebra.Auth.Authenticator
 import tech.diadochi.auth.data.{NewPasswordInfo, UserForm}
-import tech.diadochi.auth.errors.ChangePasswordError.{InvalidPassword, UserNotFound}
+import tech.diadochi.auth.errors.AuthenticationError
+import tech.diadochi.auth.errors.AuthenticationError.{InvalidPassword, UserNotFound}
 import tech.diadochi.core.fixtures.UserFixture
 import tech.diadochi.core.users.{Role, User}
 import tech.diadochi.repo.algebra.Users
@@ -22,6 +23,7 @@ import tsec.passwordhashers.PasswordHash
 import tsec.passwordhashers.jca.BCrypt
 
 import scala.concurrent.duration.*
+import scala.reflect.ClassTag.Nothing
 
 class LiveAuthSpec extends AsyncFreeSpec with AsyncIOSpec with Matchers with UserFixture {
 
@@ -30,23 +32,23 @@ class LiveAuthSpec extends AsyncFreeSpec with AsyncIOSpec with Matchers with Use
   given logger: Logger[IO] = Slf4jLogger.getLogger[IO]
 
   "Auth Algebra" - {
-    "login should return None if the user doesn't exist" in {
+    "login should return Left[UserNotFound] if the user doesn't exist" in {
       (for {
         auth       <- LiveAuth[IO](mockedUsers, mockedAuthenticator)
-        maybeToken <- auth.login("some@mail.com", "password")
-      } yield maybeToken) asserting (_ shouldBe None)
+        maybeToken <- auth.login(nonExistentEmail, "password")
+      } yield maybeToken) asserting (_ shouldBe Left(UserNotFound(nonExistentEmail)))
     }
-    "login should return None if the user exists but the password is wrong" in {
+    "login should return Left[InvalidPassword] if the user exists but the password is wrong" in {
       (for {
         auth       <- LiveAuth[IO](mockedUsers, mockedAuthenticator)
         maybeToken <- auth.login(JohnDoe.email, "password")
-      } yield maybeToken) asserting (_ shouldBe None)
+      } yield maybeToken) asserting (_ shouldBe Left(InvalidPassword))
     }
-    "login should return Some(token) if the user exists and the password is correct" in {
+    "login should return Right(token) if the user exists and the password is correct" in {
       (for {
         auth       <- LiveAuth[IO](mockedUsers, mockedAuthenticator)
         maybeToken <- auth.login(JohnDoe.email, JohnDoe.hashedPassword)
-      } yield maybeToken) asserting (_ shouldBe defined)
+      } yield maybeToken) asserting (_ shouldBe Right(Nothing))
     }
 
     "signup should not create a user with an existing email" in {

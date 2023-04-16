@@ -10,7 +10,7 @@ CREATE TABLE users
 
 INSERT INTO users(email, hashedPassword, firstName, lastName, company, role)
 VALUES ('john@doe.com',
-        'a hashed password',
+        '$2a$10$mvX89VIiN1BJIe7BJJ6jweQMDDcveZtNPZXtV/.3fljL6x3I1wy2K',
         'John',
         'Doe',
         'CompanyTM',
@@ -18,7 +18,7 @@ VALUES ('john@doe.com',
 
 INSERT INTO users(email, hashedPassword, firstName, lastName, company, role)
 VALUES ('jane@doe.com',
-        'another hashed password',
+        '$2a$10$XB5lNTTyHJVkGIDn5p8VueMhRrmotVkUVv9cQ5RiZkCGNPzGadnc6',
         'John',
         'Doe',
         'CompanyTM',

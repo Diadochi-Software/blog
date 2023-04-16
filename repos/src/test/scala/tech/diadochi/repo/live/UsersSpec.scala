@@ -29,7 +29,7 @@ class UsersSpec
       transactor.use { xa =>
         (for {
           users     <- LiveUsers[IO](xa)
-          retrieved <- users.find("john@doe.com")
+          retrieved <- users.find(JohnDoe.email)
         } yield retrieved) asserting (_ shouldBe Some(JohnDoe))
       }
     }
