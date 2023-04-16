@@ -86,7 +86,7 @@ class LiveAuthSpec extends AsyncFreeSpec with AsyncIOSpec with Matchers with Use
         auth <- LiveAuth[IO](mockedUsers, mockedAuthenticator)
         res <- auth.changePassword(
           JohnDoe.email,
-          NewPasswordInfo(JohnDoe.hashedPassword, "new password")
+          NewPasswordInfo(validPassword, "new password")
         )
         isNicePassword <- res match
           case Right(user) =>

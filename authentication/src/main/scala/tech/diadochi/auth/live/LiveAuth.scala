@@ -62,10 +62,25 @@ final class LiveAuth[F[_]: Async] private (users: Users[F], authenticator: Authe
       _    <- EitherT.right(users.create(user))
     } yield user).value
 
+  private def updatePassword(
+      user: User,
+      newPassword: String
+  ): EitherT[F, AuthenticationError, User] =
+    for {
+      hashedPassword <- EitherT.right(BCrypt.hashpw[F](newPassword))
+      updatedUser = user.copy(hashedPassword = hashedPassword)
+      _ <- EitherT.right(users.update(updatedUser))
+    } yield updatedUser
+
   override def changePassword(
       email: String,
       newPassword: NewPasswordInfo
-  ): F[Either[AuthenticationError, User]] = ???
+  ): F[Either[AuthenticationError, User]] =
+    (for {
+      user        <- findUser(email)
+      validUser   <- checkPassword(user, newPassword.oldPassword)
+      updatedUser <- updatePassword(validUser, newPassword.newPassword)
+    } yield updatedUser).value
 
 }
 
